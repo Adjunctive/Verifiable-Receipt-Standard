@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VRS Conformance Vectors</title>
+<style>
+  :root{ --bg:#fff; --ink:#1a1a1a; --muted:#555; --hint:#777; --rule:rgba(0,0,0,.12); --border:rgba(0,0,0,.16);
+    --accent:#005a9c; --accentbg:#eef4fb; --code:#f4f4f2; --good:#0a6b3b; --goodbg:#eaf6ef; --bad:#a3271f; --badbg:#fbecea;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#15171a; --ink:#e7e7e3; --muted:#aeb0b3; --hint:#8a8d90;
+    --rule:rgba(255,255,255,.14); --border:rgba(255,255,255,.2); --accent:#6fb3e6; --accentbg:#16242f; --code:#1d2024;
+    --good:#73d39b; --goodbg:#15241b; --bad:#e8908a; --badbg:#2a1715; } }
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.55;font-size:17px;}
+  .wrap{max-width:54rem;margin:0 auto;padding:2.5rem 1.4rem 6rem;}
+  header.doc{border-bottom:3px double var(--rule);padding-bottom:1.4rem;margin-bottom:1.4rem;}
+  h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .3rem;}
+  .subtitle{font-size:1.05rem;color:var(--muted);margin:0;}
+  .docstatus{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);background:var(--accentbg);border:1px solid var(--accent);border-radius:4px;padding:.25rem .55rem;}
+  h2,h3{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.25;margin:2.1rem 0 .6rem;scroll-margin-top:1rem;}
+  h2{font-size:1.4rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;}
+  h3{font-size:1.08rem;}
+  a{color:var(--accent);}
+  code,.mono{font-family:var(--mono);}
+  p code,li code,td code{background:var(--code);padding:.05em .35em;border-radius:3px;font-size:.85em;}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.74rem;line-height:1.55;}
+  table{border-collapse:collapse;width:100%;font-size:.8rem;margin:1rem 0;font-family:var(--mono);}
+  th,td{border:1px solid var(--border);padding:.35rem .5rem;text-align:left;vertical-align:top;overflow-wrap:anywhere;}
+  th{background:var(--accentbg);font-family:ui-sans-serif,system-ui,sans-serif;}
+  td.k{white-space:nowrap;color:var(--muted);}
+  .rfc{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-variant:small-caps;font-size:.92em;}
+  .ok{color:var(--good);font-weight:700;} .fail{color:var(--bad);font-weight:700;}
+  .note{border:1px solid var(--border);border-left:4px solid var(--accent);background:var(--code);border-radius:4px;padding:.7rem 1rem;margin:1.1rem 0;font-size:.95rem;}
+  .note .n-h{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.35rem;}
+  nav.toc{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.9rem;background:var(--code);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;}
+  nav.toc .toc-h{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--hint);margin-bottom:.6rem;}
+  nav.toc ol{margin:0;padding-left:1.3rem;} nav.toc li{margin:.16rem 0;} nav.toc a{text-decoration:none;}
+  .secnum{color:var(--hint);font-weight:400;}
+  .small{font-size:.85rem;color:var(--muted);font-family:ui-sans-serif,system-ui,sans-serif;}
+  tr.neg td{background:var(--badbg);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <p class="docstatus">VRS 1.0 — Normative Conformance Vectors</p>
+  <h1>VRS Conformance Vectors</h1>
+  <p class="subtitle">Byte-exact test fixtures. A conforming implementation must reproduce every value here.</p>
+</header>
+
+<section id="intro">
+  <h2>How to use these vectors</h2>
+  <p>Every hash below is produced by the reference construction in <code>VRSLib</code> (<a href="02-vrs-specification.html#sec-crypto">Specification §6</a>); the signatures are produced with the published test keys below. An implementation claiming any document-level conformance class <span class="rfc">must</span> reproduce these values exactly. Regenerate them with <code>Reference/04-reference-contracts/tools/generate-vectors.mjs</code> (ethers v6).</p>
+  <div class="note"><span class="n-h">Test keys (do not use in production)</span> These are the standard Anvil/Hardhat development keys, published so signatures are reproducible.
+  <pre style="margin:.5rem 0 0"><code>K0 (issuer / root): priv 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+                    addr 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+K1 (operational):   priv 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+                    addr 0x70997970C51812dc3A010C7d01b50e0d17dc79C8</code></pre></div>
+  <nav class="toc"><div class="toc-h">Contents</div><ol>
+    <li><a href="#tags">Domain-separation tags</a></li>
+    <li><a href="#inputs">Reference receipt inputs</a></li>
+    <li><a href="#hashes">Group, leaf, tree, and entitlement hashes</a></li>
+    <li><a href="#signed">Signed receipt (test key)</a></li>
+    <li><a href="#delegated">Delegated receipt</a></li>
+    <li><a href="#serial">Serial authentication and nullifier</a></li>
+    <li><a href="#registry">Registry (chain-bound) digests</a></li>
+    <li><a href="#negative">Negative test cases</a></li>
+  </ol></nav>
+</section>
+
+<!-- 1 TAGS -->
+<section id="tags">
+  <h2><span class="secnum">1.</span> Domain-separation tags</h2>
+  <p>Each tag is <code>keccak256</code> of its ASCII label.</p>
+  <table>
+    <tr><th>Constant</th><th>Label</th><th>Value</th></tr>
+    <tr><td class="k">T_CORE</td><td>VRS:group:core:v1</td><td>0x8a4ee4fa9ff1729de65690069a75fb0fe75ca23d690da07336260d98cc7293cd</td></tr>
+    <tr><td class="k">T_COMM</td><td>VRS:group:commercial:v1</td><td>0x358226e166aa8c7ced4d8343e87c9567e309ed2969c35c022dea13a313ff5651</td></tr>
+    <tr><td class="k">T_WARR</td><td>VRS:group:warranty:v1</td><td>0xc2c8821abc41639e957f102f6b1aab82eae905435926bf2d42cef4e55d2c5e95</td></tr>
+    <tr><td class="k">T_DESC</td><td>VRS:group:descriptive:v1</td><td>0xaa20af8da0e66b0a1e590f63b2e2105d75c6cc39e388e0c860b9b2ac986514bc</td></tr>
+    <tr><td class="k">T_PROV</td><td>VRS:group:provenance:v1</td><td>0x83cc047a50da23e06af35218acadee09df695f7f0a316958a1fcd4f75f062a38</td></tr>
+    <tr><td class="k">T_ITEM</td><td>VRS:leaf:item:v1</td><td>0x1919f9089163d10a8eb4e010964c557e39261fd3439a80cd25687959a84ccc57</td></tr>
+    <tr><td class="k">T_HEADER</td><td>VRS:leaf:header:v1</td><td>0x21bdae2a4644583afdd91ab3ccb86310923baaf026c143ab809b5bd395b57613</td></tr>
+    <tr><td class="k">T_NODE</td><td>VRS:node:v1</td><td>0xc813b5e659ae4edfa27d75b12bb8086b79fde7b7170a987cbf919736ffe04f73</td></tr>
+    <tr><td class="k">T_ANODE</td><td>VRS:anchor-node:v1</td><td>0xe286026d6ef5488a096860b85d0a40c8661ca6010d17139ffb86b76b62f37295</td></tr>
+    <tr><td class="k">T_ENT</td><td>VRS:entitlement:v1</td><td>0x3cb2d8110d21e7d0b591288f57ad799ae2b029797ef8c8cb986bc8c9ef63f7b4</td></tr>
+    <tr><td class="k">T_SC</td><td>VRS:salt-commit:v1</td><td>0x228c9873854eab1871d31310da1ab0d520febee8f345f5d073b7d45128693b10</td></tr>
+    <tr><td class="k">T_SERIAL</td><td>VRS:serial:v1</td><td>0x2b72a919159736ad3b02e02c406181976976b9a2d730796fbce1cc2042cc3102</td></tr>
+    <tr><td class="k">T_SNODE</td><td>VRS:serial-node:v1</td><td>0x5b89f0e82ebefcddbc2f86132350db981cf2256a4dc2081b1b897c2632c4dfb5</td></tr>
+    <tr><td class="k">T_NULL</td><td>VRS:nullifier:v1</td><td>0x2e368fb350f005e08aac472ee140f07aaaf8406c9eab0da856c9d6eaaa6c2770</td></tr>
+    <tr><td class="k">T_DELEG</td><td>VRS:delegation:v1</td><td>0xc08360e7c6c8a94e624082479389d059df887f655045186f5a47c75874180110</td></tr>
+    <tr><td class="k">PAD</td><td>VRS:pad:v1</td><td>0xb6dcc3947334a44996999477a127b82b89d54c2f16497a503bb6d9616fde8458</td></tr>
+    <tr><td class="k">ABSENT</td><td>VRS:absent:v1</td><td>0x5ae9378f72a1c32fa7eb2bdcfafbd1a8e5b4b8f9ac0a08830cbb0b1da41b2829</td></tr>
+  </table>
+  <p class="small">Receipt EIP-712 domain separator <code>keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256("VRS"), keccak256("1")))</code> = <code>0x3030ea2573ab63312d744ac52b43f5932929373cecf8b7f143475abf9b1c5ea2</code></p>
+</section>
+
+<!-- 2 INPUTS -->
+<section id="inputs">
+  <h2><span class="secnum">2.</span> Reference receipt inputs</h2>
+  <p>A two-line receipt. <code>issuedAt = 1790000000</code>, <code>receiptType = 0</code> (sale), <code>fiscalHash = 0x8c58af25d19af53f6139ce81f683c35fa8e839c491824ab75628ca508180498a</code> (= <code>keccak256("test-fiscal-blob")</code>), <code>schemaHash = 0xe18b2d7e5b1a7d88d3e0f0c05ba5cb54c52290be82766537a0480bee6c456993</code> (= <code>keccak256("vrs/receipt/1.0")</code>).</p>
+  <table>
+    <tr><th>Line</th><th>0 — apples</th><th>1 — toaster</th></tr>
+    <tr><td class="k">productId</td><td>txt:Apples, loose</td><td>(01)09506000134352(21)SER1234</td></tr>
+    <tr><td class="k">qtyMilli</td><td>535</td><td>1000</td></tr>
+    <tr><td class="k">commercial</td><td>299 / 700 bps / EUR</td><td>4999 / 1900 bps / EUR</td></tr>
+    <tr><td class="k">warranty</td><td>ABSENT</td><td>gln:4012345000009 / 730d / keccak256("terms")</td></tr>
+    <tr><td class="k">descriptive</td><td>ABSENT</td><td>keccak256("jcs-of-descriptive")</td></tr>
+    <tr><td class="k">provenance</td><td>ABSENT</td><td>batchId, serialSaltCommit (below)</td></tr>
+    <tr><td class="k">salt (bearer)</td><td>keccak256("salt-apples")</td><td>keccak256("salt-toaster")</td></tr>
+  </table>
+</section>
+
+<!-- 3 HASHES -->
+<section id="hashes">
+  <h2><span class="secnum">3.</span> Group, leaf, tree, and entitlement hashes</h2>
+  <p>These values are <strong>issuer-independent</strong> except the header leaf, internal node <code>n01</code>, root, commitment digest, and entitlement id, which depend on the issuer address. This section uses issuer <code>0x00000000000000000000000000000000000000A1</code> (matching <a href="01-vrs-overview.html#appendix">Overview Appendix A</a> and <a href="02-vrs-specification.html#appendix-vectors">Specification Appendix A</a>).</p>
+  <table>
+    <tr><th>Name</th><th>Value</th></tr>
+    <tr><td class="k">sc0 = saltCommit(salt0)</td><td>0x39c8c9fee863d4cb86c9440505660b5a8f3168c2333cd0b54b22e6d572a4e352</td></tr>
+    <tr><td class="k">sc1 = saltCommit(salt1)</td><td>0xf305f1fa6acdc6447fd91957d44133a768a40a15ec7668a31e247851deb491a1</td></tr>
+    <tr><td class="k">core0</td><td>0xa78dee4b1640b8aa26d648c720861094a1995208dfaf7f9650e9a7a7ebb35812</td></tr>
+    <tr><td class="k">comm0</td><td>0xadfb0349b767de270ca8cdc94dbff174ed022fad76c25f41d8550130f64f59b3</td></tr>
+    <tr><td class="k">item0</td><td>0xcb865da923773d20c73b4ddf5fafb4f5c2eecb32aacb09fa81743fb7f6ccc192</td></tr>
+    <tr><td class="k">core1</td><td>0x21042e0b4bc4e2a189a845a4cf7e252dd6cd42b156cfc9d5a1fda55fd511f9d1</td></tr>
+    <tr><td class="k">comm1</td><td>0x7bfebb74ddbd0fbf527074a0f2cec9e75a6cb5258226a35d8ae3c9de6b64739d</td></tr>
+    <tr><td class="k">warr1</td><td>0x753fda7cb4f5a47bdc8c4bfcdb95f7b755a04ce1cf713bb564dbf6d9faae0961</td></tr>
+    <tr><td class="k">desc1</td><td>0x4259954ceb3963fd57c5c330995802f25cfdc903e8396266c453534dbb826364</td></tr>
+    <tr><td class="k">batchId = keccak256("demo-batch:toaster")</td><td>0x33bdafc4fb2e72e30a329411a1f8fc1a4beeb4b4a6cfc22fc9914961ab29679f</td></tr>
+    <tr><td class="k">serialSalt = keccak256("serial-salt-toaster")</td><td>0x67854b809ea195362b018634ce712ab34c676bcadda791b450aa825c9cc7e742</td></tr>
+    <tr><td class="k">serialSaltCommit</td><td>0x8b8bb26dda52dc0b732097526c876b03529e4b361882a0441060a6ac6049a54a</td></tr>
+    <tr><td class="k">prov1</td><td>0xb2dbb672fb771a06a08d30772d621efa377a67609d1542a32e72ef9ebbf61c33</td></tr>
+    <tr><td class="k">item1</td><td>0x9e327d4026fac89c971f3f73e3c3fca9bcfd52aabfdac542a4662d0cfa5a6697</td></tr>
+    <tr><td class="k">headerLeaf (issuer 0x…00A1, deleg ABSENT)</td><td>0xd38a9ba17d8ff6a2ff7463d7607a2cc0e83a3a6f1e246b517dc4474e27e7c1fc</td></tr>
+    <tr><td class="k">n01 = node(headerLeaf, item0)</td><td>0x6bcbb924a70cd644b98692e95099e3c14b317f09af7c42493527aa3666f06158</td></tr>
+    <tr><td class="k">n23 = node(item1, PAD)</td><td>0x472d9d4799022fdad3c1dbf8da803ed1598ebb4a87c8a4af188a33c4b24e3f3d</td></tr>
+    <tr><td class="k">receiptRoot = node(n01, n23)</td><td>0x4881046b77385af41d3b87e28fdfc1539e390956eba11046f44d5397ff8338e9</td></tr>
+    <tr><td class="k">commitmentDigest(root, schemaHash)</td><td>0xd07093789d5cccf67614603bd751ab8c5006b093a6e67a91823bde9430ab9dc0</td></tr>
+    <tr><td class="k">entitlementId(root, 1, sc1)</td><td>0x47cc2d0c6e409c69d9f52be15af626038008bce8f57e6b83cec5c1f5b8cb979d</td></tr>
+  </table>
+  <p class="small">Proof paths for the toaster (leaf index 2, lineIndex 1): <code>itemPath = [PAD, n01]</code>, <code>headerPath = [item0, n23]</code>. Folding either to the root confirms membership.</p>
+</section>
+
+<!-- 4 SIGNED -->
+<section id="signed">
+  <h2><span class="secnum">4.</span> Signed receipt (test key K0)</h2>
+  <p>The same receipt signed by a real key. The issuer is <code>K0 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</code>, so the header leaf, root, digest, and entitlement id differ from §3 (which used a placeholder issuer); all <strong>issuer-independent</strong> group hashes are unchanged.</p>
+  <table>
+    <tr><td class="k">issuer (= recovered signer)</td><td>0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</td></tr>
+    <tr><td class="k">receiptRoot</td><td>0xecfcc640424a7993e5d3f84e0973723591569defb8a955b9fa5f029d76cdab09</td></tr>
+    <tr><td class="k">commitmentDigest</td><td>0xaa4a648d01a8a939b223866c6140582f508b20d102c4d6cd095803a443b8902d</td></tr>
+    <tr><td class="k">signature (r‖s‖v, v=0x1b)</td><td>0x00b072c9462b91d106d4eaa7ff89524960f2539cef951746a923e0ae10f6bf984c0bf1ef24ffc61210c535524e23686b0ae16b4404801ef27d3f0a575f1616f81b</td></tr>
+    <tr><td class="k">ecrecover(digest, sig)</td><td><span class="ok">= issuer ✓</span></td></tr>
+    <tr><td class="k">entitlementId(root, 1, sc1)</td><td>0x448f65886aa82f536f7fc8196831c0c141cc5ad52c7f447e1a034d75f16f69e3</td></tr>
+  </table>
+</section>
+
+<!-- 5 DELEGATED -->
+<section id="delegated">
+  <h2><span class="secnum">5.</span> Delegated receipt</h2>
+  <p>A one-line receipt (toaster at lineIndex 0, provenance ABSENT) signed by an operational key <code>K1</code>, under a delegation certificate signed by the root <code>K0</code>. Role <code>merchant</code>, validity window around <code>issuedAt</code>. Mirrors <code>VRSLib</code> S-2 delegation.</p>
+  <table>
+    <tr><td class="k">rootIdentity (K0)</td><td>0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</td></tr>
+    <tr><td class="k">operationalKey (K1, = signer)</td><td>0x70997970C51812dc3A010C7d01b50e0d17dc79C8</td></tr>
+    <tr><td class="k">role = keccak256("merchant")</td><td>0x35b7289f73333871b968eb7a0064ec7deaa432461c89f27075568d2d370c4347</td></tr>
+    <tr><td class="k">validFrom / validUntil</td><td>1789913600 / 1790518400</td></tr>
+    <tr><td class="k">delegationHash</td><td>0x1880a0d46dd414fa529a1d1fbc1c01e3c5f7ef76f79c3a388e02439a6b4d5fde</td></tr>
+    <tr><td class="k">coreHash (lineIndex 0)</td><td>0x14b2a417e9c47cb4430b70f086fbd5482beea323a578ef7bab1a5640e157a67a</td></tr>
+    <tr><td class="k">itemLeaf (provenance ABSENT)</td><td>0xe25f694927036a7e0b620d1591b4ffacf5287c1a3db7cf449af30d03d0315a96</td></tr>
+    <tr><td class="k">headerLeaf</td><td>0xe2d26c7702e1990407a905b30b4a263be7d375555aaf1800cdc2f13a5ab76d68</td></tr>
+    <tr><td class="k">receiptRoot = node(headerLeaf, itemLeaf)</td><td>0x1607a31a0faaa2754a521916a8d9110755f19870c0a46add45e1ecc8f17ea74e</td></tr>
+    <tr><td class="k">receiptCommitmentDigest</td><td>0x84786f118e1c23294749b1b0412c104be2c60244ee390be7b9292ff018e65b2d</td></tr>
+    <tr><td class="k">receiptSignature (by K1)</td><td>0x0377a65f1f50c21ac25de62163a7bb40dd042e8cd855d602702a09a03b10c08849bb1d43032bdfb129f57996d7a6a6a1da68d8b96fb74c6a210628573902c1a41c</td></tr>
+    <tr><td class="k">recover(receiptDigest, sig)</td><td><span class="ok">= operationalKey ✓</span></td></tr>
+    <tr><td class="k">certDigest = delegationDigest(K1, role, vf, vu)</td><td>0xf5d628a0d328f9194c15b98e25d00d537e3937f715d2a9f8aa256ec57310b7e3</td></tr>
+    <tr><td class="k">certSignature (by K0)</td><td>0x4d1beabd9b8c68a040ffecb07c1d3f2a5ab7af99b574804c2df833ca5ad6138610fc82b472b72de003d685209cd534c7aa4b18393c493193d2b75d7ba4723d0b1b</td></tr>
+    <tr><td class="k">recover(certDigest, certSig)</td><td><span class="ok">= rootIdentity ✓</span></td></tr>
+    <tr><td class="k">entitlementId(root, 0, sc1)</td><td>0x95af440da561cc63f48edcbb4f562a966acdd0b11ad3911ec7644679560af1a2</td></tr>
+  </table>
+</section>
+
+<!-- 6 SERIAL -->
+<section id="serial">
+  <h2><span class="secnum">6.</span> Serial authentication and nullifier</h2>
+  <p>For the toaster's serial. <code>serial = "SER1234"</code> (UTF-8 bytes), <code>serialSalt</code> and <code>batchId</code> as in §3.</p>
+  <table>
+    <tr><td class="k">serialLeaf = keccak256(abi.encode(T_SERIAL, serial, serialSalt))</td><td>0xdd33a84cc5fa8b801ad3c118c4c8b16676ada97c0fe4086436d48bdbc7330abc</td></tr>
+    <tr><td class="k">nullifier = keccak256(abi.encode(T_NULL, batchId, serial, serialSalt))</td><td>0xe9b1ca83fb462519aa628ffe6ff98d9d4c687d8a3b1ae6f247429fbfb79d1ebe</td></tr>
+  </table>
+  <p class="small">A second <code>authenticate</code> with the same <code>nullifier</code> <span class="rfc">must</span> revert — the cloned-serial signal.</p>
+</section>
+
+<!-- 7 REGISTRY -->
+<section id="registry">
+  <h2><span class="secnum">7.</span> Registry (chain-bound) digests</h2>
+  <p>Unlike receipt signing, registry-action signatures are <strong>chain-bound</strong>: the EIP-712 domain is <code>EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)</code> with <code>name = "VRSRegistry"</code>. Example for <code>chainId = 8453</code> and registry <code>0x000000000000000000000000000000000000c0DE</code>.</p>
+  <table>
+    <tr><td class="k">registry domainSeparator</td><td>0x025d72777eae41cd1d6cb600f7df379874f5460e0259ac5e799826a18d759ad6</td></tr>
+    <tr><td class="k">TRANSFER_AUTH_TYPEHASH</td><td>0x77b167b6a3844e98eada7c81ab52b6edea2f79c758f15cbf92fceff8dd2fd9ee</td></tr>
+    <tr><td class="k">transferAuthDigest (id=§3 entId, to=0xbbbb…bbbb, nonce=0, deadline=1790300000)</td><td>0x1bee14be304de7cceb7d86d20fc0e9985b3bd6b98625a133b18286f06dc6a444</td></tr>
+    <tr><td class="k">registerCommitment = keccak256(abi.encode(salt1, K0))</td><td>0xf30f213bffe2a87f5f35bc7bce1da09da855632f8345d0963a9218136b5ff449</td></tr>
+  </table>
+  <p class="small"><code>MIN_COMMIT_AGE = 60</code> seconds. The domain separator changes with <code>chainId</code> and the deployed registry address.</p>
+</section>
+
+<!-- 8 NEGATIVE -->
+<section id="negative">
+  <h2><span class="secnum">8.</span> Negative test cases</h2>
+  <p>Starting from the valid §4 signed proof, each mutation <span class="rfc">must</span> cause verification (<a href="02-vrs-specification.html#sec-verify">Specification §9.3</a>) to reject at the indicated step.</p>
+  <table>
+    <tr><th>Mutation</th><th>Required outcome</th></tr>
+    <tr class="neg"><td>Flip one byte of <code>productId</code> (keep paths)</td><td><span class="fail">reject</span> — recomputed <code>itemLeaf</code> no longer folds to <code>receiptRoot</code> (step 3)</td></tr>
+    <tr class="neg"><td>Flip one byte of <code>saltCommit</code></td><td><span class="fail">reject</span> — root mismatch (step 3); also changes <code>entitlementId</code></td></tr>
+    <tr class="neg"><td>Replace <code>issuerSig</code> with any other valid-form signature</td><td><span class="fail">reject</span> — recovered signer ≠ <code>issuer</code> (step 4)</td></tr>
+    <tr class="neg"><td>Raise <code>s</code> above the secp256k1 half-order (malleate)</td><td><span class="fail">reject</span> — malleability guard (§6.4)</td></tr>
+    <tr class="neg"><td>Use the §5 delegated receipt with <code>issuedAt</code> outside <code>[validFrom, validUntil]</code></td><td><span class="fail">reject</span> — delegation window (step 5)</td></tr>
+    <tr class="neg"><td>Present the §5 receipt to a verifier whose role ≠ <code>merchant</code></td><td><span class="fail">reject</span> — delegate-role mismatch (step 6 / §8)</td></tr>
+    <tr class="neg"><td>Supply <code>headerPath.length ≠ itemPath.length</code>, or length &gt; 16</td><td><span class="fail">reject</span> — path-length / depth check (step 1)</td></tr>
+    <tr class="neg"><td>Swap order of a <code>node()</code> pair (wrong index bit)</td><td><span class="fail">reject</span> — folds to a different root (step 2/3)</td></tr>
+    <tr class="neg"><td>Register with the §3 proof (which carries <code>saltCommit</code>, not <code>salt</code>)</td><td><span class="fail">reject</span> — bearer authority not established; the derived id is inert (§14)</td></tr>
+    <tr class="neg"><td>Re-use a consumed serial <code>nullifier</code></td><td><span class="fail">reject</span> — set-once nullifier already used (§16)</td></tr>
+  </table>
+</section>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:2rem 0">
+<p class="small">Reproduce: <code>node Reference/04-reference-contracts/tools/generate-vectors.mjs</code> for the hash corpus and the delegated vector; the signature, serial, and registry vectors above are generated with the published test keys K0/K1. All signature recoveries verify (<span class="ok">✓</span>).</p>
+
+</div>
+</body>
+</html>

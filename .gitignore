@@ -1,0 +1,10 @@
+# Foundry build artifacts (contracts/)
+out/
+cache/
+contracts/out/
+contracts/cache/
+broadcast/
+
+# macOS / editor cruft
+.DS_Store
+*.swp

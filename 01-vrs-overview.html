@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VRS — Verifiable Receipt Standard · Overview</title>
+<style>
+  :root {
+    --bg:#faf9f5; --surface:#ffffff; --ink:#2c2c2a; --muted:#5f5e5a;
+    --hint:#888780; --border:rgba(0,0,0,0.13); --rule:rgba(0,0,0,0.07);
+    --accent:#534ab7;
+    --teal-fill:#E1F5EE; --teal-stroke:#0F6E56; --teal-ink:#085041;
+    --purple-fill:#EEEDFE; --purple-stroke:#534AB7; --purple-ink:#3C3489;
+    --blue-fill:#E6F1FB; --blue-stroke:#185FA5; --blue-ink:#0C447C;
+    --amber-fill:#FAEEDA; --amber-stroke:#854F0B; --amber-ink:#633806;
+    --red-fill:#FCEBEB; --red-stroke:#A32D2D; --red-ink:#791F1F;
+    --code-bg:#f3f1ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#262624; --surface:#30302e; --ink:#e8e6dd; --muted:#b4b2a9;
+      --hint:#888780; --border:rgba(255,255,255,0.15); --rule:rgba(255,255,255,0.08);
+      --accent:#AFA9EC;
+      --teal-fill:#085041; --teal-stroke:#5DCAA5; --teal-ink:#9FE1CB;
+      --purple-fill:#3C3489; --purple-stroke:#AFA9EC; --purple-ink:#CECBF6;
+      --blue-fill:#0C447C; --blue-stroke:#85B7EB; --blue-ink:#B5D4F4;
+      --amber-fill:#633806; --amber-stroke:#EF9F27; --amber-ink:#FAC775;
+      --red-fill:#791F1F; --red-stroke:#F09595; --red-ink:#F7C1C1;
+      --code-bg:#26261f;
+    }
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height:1.65; font-size:16px;
+  }
+  .wrap { max-width:860px; margin:0 auto; padding:56px 24px 80px; }
+  header { border-bottom:1px solid var(--rule); padding-bottom:30px; margin-bottom:8px; }
+  .kicker { color:var(--accent); font-weight:500; font-size:13px; letter-spacing:.05em; text-transform:uppercase; margin:0 0 14px; }
+  h1 { font-size:34px; font-weight:600; letter-spacing:-0.02em; margin:0 0 8px; }
+  .sub { color:var(--muted); font-size:18px; margin:0; }
+  .sub em { font-style:italic; }
+  .lede { font-size:19px; color:var(--ink); margin:30px 0 0; }
+  .lede strong { font-weight:600; }
+  section { margin-top:54px; scroll-margin-top:24px; }
+  .part { margin-top:72px; padding-top:36px; border-top:2px solid var(--rule); }
+  .part .partlabel { color:var(--accent); font-weight:600; font-size:13px; letter-spacing:.05em; text-transform:uppercase; margin:0 0 6px; }
+  h2 { font-size:24px; font-weight:600; letter-spacing:-0.015em; margin:6px 0 14px; }
+  h3 { font-size:19px; font-weight:600; letter-spacing:-0.01em; margin:34px 0 10px; }
+  p { color:var(--muted); margin:0 0 18px; }
+  p strong, li strong { color:var(--ink); font-weight:600; }
+  a { color:var(--accent); }
+  ul, ol { color:var(--muted); margin:0 0 18px; padding-left:22px; }
+  li { margin:6px 0; }
+  hr { border:none; border-top:1px solid var(--rule); margin:0; }
+  /* thesis / blockquote */
+  blockquote {
+    margin:24px 0; padding:16px 22px; background:var(--surface);
+    border:1px solid var(--border); border-left:3px solid var(--accent);
+    border-radius:0 10px 10px 0; font-size:17px; color:var(--ink);
+  }
+  blockquote p { color:var(--ink); margin:0; }
+  blockquote strong { font-weight:600; }
+  /* code */
+  code { font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:0.88em;
+         background:var(--code-bg); padding:1px 5px; border-radius:4px; }
+  pre.code {
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; margin:0 0 20px;
+  }
+  pre.code code { background:none; padding:0; font-size:13.5px; line-height:1.6; color:var(--ink); white-space:pre; }
+  /* tables */
+  .tablewrap { overflow-x:auto; margin:0 0 22px; }
+  table { border-collapse:collapse; width:100%; font-size:14.5px; background:var(--surface);
+          border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  th, td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--rule); vertical-align:top; }
+  th { background:color-mix(in srgb, var(--purple-fill) 40%, transparent); color:var(--ink); font-weight:600; font-size:13px; }
+  tr:last-child td { border-bottom:none; }
+  td strong { color:var(--ink); }
+  td code { font-size:12.5px; }
+  /* mermaid figures */
+  figure { margin:0 0 24px; padding:22px; background:var(--surface);
+           border:1px solid var(--border); border-radius:12px; }
+  .mermaid { display:flex; justify-content:center; }
+  .mermaid svg { max-width:100%; height:auto; }
+  figcaption { color:var(--hint); font-size:13.5px; margin-top:14px; text-align:center; }
+  /* callouts */
+  .callout { margin:22px 0; padding:14px 18px; border:1px solid var(--border); border-radius:10px;
+             font-size:15px; background:var(--surface); }
+  .callout.good { border-left:3px solid var(--teal-stroke); }
+  .callout.good b { color:var(--teal-ink); }
+  .callout.warn { border-left:3px solid var(--amber-stroke); }
+  .callout.warn b { color:var(--amber-ink); }
+  .callout.info { border-left:3px solid var(--accent); }
+  .callout.info b { color:var(--accent); }
+  .callout h4 { margin:0 0 8px; font-size:14px; font-weight:600; color:var(--ink); }
+  .callout.info ul { margin:8px 0 0; padding-left:20px; font-size:14px; }
+  .callout.info li { margin:5px 0; }
+  .callout p { margin:0; color:var(--ink); }
+  .pitch { margin:30px 0; padding:24px 26px; background:color-mix(in srgb, var(--purple-fill) 45%, transparent);
+           border:1px solid var(--purple-stroke); border-radius:12px; }
+  .pitch p { color:var(--ink); font-size:18px; margin:0; }
+  .pitch strong { font-weight:600; }
+  /* TOC */
+  nav.toc { margin:30px 0 0; padding:18px 20px; background:var(--surface); border:1px solid var(--border); border-radius:12px; }
+  nav.toc .th { font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--hint); margin-bottom:10px; }
+  nav.toc ol { list-style:none; padding:0; margin:0; columns:2; column-gap:24px; }
+  nav.toc li { margin:5px 0; font-size:14px; }
+  nav.toc a { text-decoration:none; color:var(--muted); }
+  nav.toc a:hover { color:var(--accent); }
+  @media (max-width:560px){ nav.toc ol{ columns:1; } h1{ font-size:28px; } }
+  footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--rule); color:var(--hint); font-size:14px; }
+  footer a { color:var(--accent); }
+  footer ul { color:var(--hint); }
+  details.vals { margin:0 0 20px; border:1px solid var(--border); border-radius:10px; background:var(--surface); overflow:hidden; }
+  details.vals > summary { cursor:pointer; padding:12px 16px; font-size:14px; font-weight:500; color:var(--ink); list-style:none; display:flex; align-items:center; gap:8px; }
+  details.vals > summary::-webkit-details-marker { display:none; }
+  details.vals > summary::before { content:"\25B8"; color:var(--hint); font-size:11px; transition:transform .15s; }
+  details.vals[open] > summary::before { transform:rotate(90deg); }
+  details.vals pre.code { margin:0; border:none; border-top:1px solid var(--rule); border-radius:0; }
+  .pillrow { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; }
+  .pill { font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:7px; }
+  .pill.ok { color:var(--teal-ink); background:var(--teal-fill); }
+  .pill.no { color:var(--amber-ink); background:var(--amber-fill); }
+  /* use-case data walkthrough */
+  details.walk { margin:-6px 0 24px; border:1px solid var(--border); border-radius:10px; background:var(--surface); overflow:hidden; }
+  details.walk > summary { cursor:pointer; padding:12px 16px; font-size:14px; font-weight:600; color:var(--accent); list-style:none; display:flex; align-items:center; gap:8px; }
+  details.walk > summary::-webkit-details-marker { display:none; }
+  details.walk > summary::before { content:"\25B8"; color:var(--accent); font-size:11px; transition:transform .15s; }
+  details.walk[open] > summary::before { transform:rotate(90deg); }
+  .walkbody { border-top:1px solid var(--rule); padding:4px 14px 14px; }
+  .walknote { font-size:12.5px; color:var(--hint); margin:12px 2px 2px; line-height:1.5; }
+  .wstep { border:1px solid var(--rule); border-radius:10px; margin:14px 0 0; overflow:hidden; }
+  .wstep-head { display:flex; align-items:center; gap:10px; padding:11px 13px 6px; flex-wrap:wrap; }
+  .wstep-head b { font-size:14px; font-weight:600; color:var(--ink); }
+  .wdesc { color:var(--muted); font-size:13px; margin:0 13px 9px; }
+  .scopechip { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .scopechip.doc { background:var(--blue-fill); color:var(--blue-ink); }
+  .scopechip.secret { background:var(--red-fill); color:var(--red-ink); }
+  .scopechip.proof { background:var(--purple-fill); color:var(--purple-ink); }
+  .scopechip.chain { background:var(--teal-fill); color:var(--teal-ink); }
+  .scopechip.service { background:var(--amber-fill); color:var(--amber-ink); }
+  .scopechip.policy { background:var(--code-bg); color:var(--muted); border:1px solid var(--border); }
+  .wtabs { display:flex; gap:5px; padding:0 13px 11px; }
+  .wtab { cursor:pointer; border:1px solid var(--border); background:var(--bg); color:var(--muted); border-radius:7px; padding:4px 11px; font:12px inherit; font-weight:600; }
+  .wtab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  @media (prefers-color-scheme: dark) { .wtab.active { color:#262624; } }
+  .wjson { margin:0; padding:13px 15px; background:#22221f; color:#f0ede4;
+           font:12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+           white-space:pre-wrap; overflow-wrap:anywhere; max-height:540px; overflow:auto;
+           border-top:1px solid rgba(255,255,255,.08); }
+  .wnotes { margin:0; padding:12px 16px 14px; background:var(--bg); border-top:1px solid var(--rule);
+            font-size:13px; color:var(--muted); line-height:1.6; }
+  .wnotes ul { margin:0; padding-left:18px; }
+  .wnotes li { margin:6px 0; }
+  .wnotes b { color:var(--ink); font-weight:600; }
+  .wnotes code { font-size:12px; }
+  .wnotes .ref { color:var(--hint); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">Verifiable Receipt Standard</p>
+  <h1>VRS — A High-Level Overview</h1>
+  <p class="sub"><em>What it is, how it works, why it matters, and how you might build on it.</em></p>
+
+  <p class="lede"><strong>VRS makes an ordinary receipt verifiable, private, and useful after the purchase.</strong> It does not put your shopping basket on a public ledger, and it does not pretend a blockchain can settle who legally owns a thing.</p>
+
+  <nav class="toc">
+    <div class="th">On this page</div>
+    <ol>
+      <li><a href="#pitch">The pitch</a></li>
+      <li><a href="#problem">The problem</a></li>
+      <li><a href="#value">The value</a></li>
+      <li><a href="#privacy-power">Privacy and power</a></li>
+      <li><a href="#core-idea">The core idea</a></li>
+      <li><a href="#part1">Part 1 · Core ideas &amp; components</a></li>
+      <li><a href="#part2">Part 2 · Cryptography &amp; signatures</a></li>
+      <li><a href="#part3">Part 3 · Use-case sequences</a></li>
+      <li><a href="#why-chain">Why a chain at all?</a></li>
+      <li><a href="#appendix">Worked commitment tree</a></li>
+      <li><a href="#contracts">The contracts</a></li>
+      <li><a href="#standards">Where it fits</a></li>
+      <li><a href="#forward">Forward compatibility</a></li>
+      <li><a href="#adopt">How you'd adopt it</a></li>
+    </ol>
+  </nav>
+</header>
+
+<!-- PITCH -->
+<section id="pitch" class="part">
+  <h2>The pitch</h2>
+  <div class="pitch"><p><strong>VRS makes a receipt verifiable and useful after the purchase.</strong> It does not make the receipt public, and it does not pretend a blockchain can settle legal title.</p></div>
+  <p>It is an open standard. There is no protocol fee, no token, and no rent on the core. Neutrality is the point: a standard that charged rent would not be adopted, and would not deserve to be.</p>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <h2>The problem</h2>
+  <p>Today a receipt is a PDF, an email, or a row in a merchant's database. That makes it:</p>
+  <ul>
+    <li><strong>hard to verify</strong> — anyone can fake a PDF, and there's no portable way to check who issued it;</li>
+    <li><strong>easy to lose</strong> — when the email is gone, the proof of purchase is gone;</li>
+    <li><strong>poor for resale</strong> — a buyer cannot confirm the item was genuinely bought, or by whom;</li>
+    <li><strong>clumsy for warranty</strong> — the claim depends on finding the original paper;</li>
+    <li><strong>useless to software</strong> — a smart contract or accounting system cannot read or trust it.</li>
+  </ul>
+  <p>Receipts are one of the most common documents in the economy, yet they carry almost none of the trust they could.</p>
+  <p>The obvious fix, <em>"put receipts on a blockchain,"</em> is worse than the problem. It would publish everyone's purchase history, charge gas on billions of transactions a day, and still not say who owns anything. VRS takes a different route.</p>
+</section>
+
+<!-- THE VALUE -->
+<section id="value" class="part">
+  <p class="partlabel">The value</p>
+  <h2>What it's worth</h2>
+  <p>A digital receipt is already worth a lot. The GS1 / Auto-ID Labs <a href="https://cocoa.ethz.ch/downloads/2019/12/None_GS1-Sweden_Auto-ID-Labs_Digital-Receipt-White-Paper_v1.0.pdf">digital-receipt white paper</a> lists the gains: searchable purchase history, smoother returns, warranty in one place, expense and budget tracking, loyalty, safety recalls, and an end to paper and thermal (BPA) waste. All of it rides on structured product data (GTINs) rather than scanned paper.</p>
+  <p>VRS gives you all of that, and more, because its receipt is not merely <em>digital</em>. It is <strong>verifiable, transferable, private, and stateful on a shared chain</strong>. That changes a receipt from a convenient record into a <strong>portable credential</strong>. It works for people who do not trust the merchant; it survives the merchant going out of business; and it follows the item to its next owner.</p>
+
+  <h3>Beyond a digital receipt</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Capability</th><th>A digital receipt</th><th>What VRS adds</th></tr>
+    <tr><td><strong>Proof of purchase</strong></td><td>A record you can show — trust the merchant's database</td><td>A cryptographic proof <em>anyone</em> (a desk, an employer, a stranger, a smart contract) can verify without trusting — or even reaching — the merchant</td></tr>
+    <tr><td><strong>Returns &amp; expenses</strong></td><td>Faster lookup</td><td>Signed credit notes + a credit graph, so returns reverse expenses and double-refunds are caught — line-level, without revealing the rest of the basket</td></tr>
+    <tr><td><strong>Resale &amp; provenance</strong></td><td>A screenshot a buyer can't trust</td><td>A transferable entitlement plus verifiable lifecycle history — a buyer checks who controls it and what happened to it</td></tr>
+    <tr><td><strong>Programmable</strong></td><td>Data to read</td><td>A receipt a contract can <em>act on</em> — rewards, gating, escrow, or IoT config that follows the current owner</td></tr>
+    <tr><td><strong>Privacy</strong></td><td>The retailer holds your purchase history</td><td>You hold it; disclose selectively; nothing lands on a public ledger</td></tr>
+  </table></div>
+
+  <h3>What only a verifiable, transferable receipt can do</h3>
+  <p><strong>Portable warranties.</strong> The warranty travels inside the receipt, so it transfers with the item. A second-hand buyer inherits whatever cover is left; the claim can be proved without revealing the price; and none of it depends on anyone keeping the paper. The warranty becomes a property of the item rather than of the person who happened to file the receipt.</p>
+  <p><strong>Theft protection.</strong> Register a valuable once. If it is stolen, flag it on a shared status registry, and any buyer, marketplace, or pawnbroker can check whether it is stolen before handing over money. Theft pays mainly because stolen goods resell easily; make the check cheap and that market shrinks. No single retailer could run this registry, because it has to be trusted by parties who do not trust each other, which is what a neutral registry is for. (The standard case is a tradesperson whose van is emptied of a few thousand pounds of tools overnight.)</p>
+  <p><strong>Recalls that reach the current owner.</strong> A recall is a signed notice anchored against the manufacturing batch. Each owner's wallet checks it, locally, against the items the owner holds; there is no contact database and no tracking. This reaches the second and third owner, whom a retailer's mailing list never had. Those are the people a safety recall most needs to find.</p>
+
+  <p><strong>Owner-gated communities, feedback, and rewards.</strong> A product's forum, its rewards, and, most useful of all, its <em>reviews</em> can be restricted to people who hold the item now. A verified-owner review cannot be botted or bought, because the reviewer proves current ownership (or first purchase) and nothing more. The same gate runs owner-only releases, firmware, and loyalty, and these pass to the next owner on resale rather than staying with the first buyer.</p>
+  <p><strong>Tamper-proof service and inspection history.</strong> Each service, repair, or inspection is a signed record whose hash is anchored in time. The log is therefore tamper-evident, and, more important, it cannot be backdated: a seller cannot fabricate years of service the week before a sale. A complete, time-proved history is expensive to fake, so it is a useful signal; it raises the value of an item that has been looked after, and it travels with the item.</p>
+  <p><strong>Counterfeit detection, within honest limits.</strong> Manufacturer-endorsed serials let VRS notice when a serial is cloned — used twice — and show that an item came through an authorised channel. That defeats the casual counterfeit and the grey market. It does not, on its own, prove the physical object is genuine: that still needs inspection, a secure tag, or a Digital Product Passport. VRS supplies the digital half of the evidence and is careful to say so.</p>
+
+  <p>In short: a digital receipt is a better <em>record</em>; VRS makes proof of purchase a portable, verifiable, programmable <em>credential</em> that outlives the merchant and follows the item.</p>
+</section>
+
+<!-- PRIVACY & POWER -->
+<section id="privacy-power" class="part">
+  <p class="partlabel">A note on privacy and power</p>
+  <h2>Privacy by design, or surveillance by default</h2>
+  <p>Pointed the wrong way, a standard that makes receipts and ownership verifiable is a surveillance instrument: a complete, queryable record of what everyone owns and buys. Surveillance capitalism already sells purchase data, and authoritarian states already use ownership and purchase records to control people. Built carelessly, this would hand both a sharper tool. The risk is real, and we treat it as a constraint on the design, not a footnote.</p>
+  <p>The honest reality, though, is that verifiable ownership and purchase records are coming anyway, by law. Digital identity wallets (eIDAS 2.0 and the EUDI wallet), age verification, e-invoicing mandates, anti-counterfeit serialisation, and the EU Digital Product Passport are all turning the once-paper record of what you bought and own into something a machine can check. The question is no longer <em>whether</em> this happens, but who builds it and on whose terms.</p>
+  <p>So there is a plain case for building it openly, now, and getting in ahead of the surveillance-by-default version. It is far better that the standard for verifiable ownership be one where the consumer holds the data, discloses it selectively, puts nothing on a public ledger, keeps no central registry of who owns what, and charges no fee and issues no token — than to let the defaults be set by a system built for tracking first. The privacy is not decoration. It is the reason to prefer this to the alternatives that are coming either way.</p>
+  <p>VRS does not claim to solve surveillance. It claims something smaller and reachable: to make the verifiable-ownership infrastructure that is arriving regardless default to the user's control rather than someone else's. A version that was not private by construction would be worse than the paper it replaces, and we would rather it were not built than built that way.</p>
+</section>
+
+<!-- CORE IDEA -->
+<section id="core-idea">
+  <h2>The core idea</h2>
+  <blockquote><p><strong>A receipt is a signed off-chain document. The chain is a shared <em>status</em> layer, not the receipt database.</strong></p></blockquote>
+  <p>What you bought, what you paid, and who you are stay in a signed document that lives in your email, a file, or a wallet. The chain is touched only when several parties who do not trust each other must agree on a <em>fact about state</em>: who holds an item's rights now, whether it was returned or reported stolen, or when a service record provably existed.</p>
+  <figure>
+    <pre class="mermaid">
+flowchart TB
+  Receipt["Signed receipt document<br/>off-chain · private · detailed"]
+  Proofs["Selective proofs<br/>reveal only what's needed"]
+  Entitlement["Item entitlement<br/>warranty · return · resale evidence"]
+  Registry["Canonical registry<br/>holder · status · lifecycle hashes"]
+  Receipt --> Proofs
+  Receipt --> Entitlement
+  Entitlement --> Registry
+    </pre>
+  </figure>
+  <p>The split buys three things at once: <strong>privacy</strong> (purchase data never lands on a public ledger), <strong>scale</strong> (there is no per-receipt gas, and most receipts never touch the chain), and <strong>legal honesty</strong> (the chain records control of an entitlement, not legal title).</p>
+</section>
+
+<!-- PART 1 -->
+<section id="part1" class="part">
+  <p class="partlabel">Part 1</p>
+  <h2>Core ideas and components</h2>
+
+  <h3>Two objects, not one</h3>
+  <p>The most important decision in VRS is to split the receipt into <strong>two objects</strong>:</p>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  Basket["Basket / fiscal receipt<br/>payer · tax · accounting<br/><b>not transferable</b>"]
+  Item["Item entitlement<br/>line item · warranty · resale<br/><b>may transfer</b>"]
+  Basket -->|"line item k creates"| Item
+    </pre>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th></th><th>Fiscal / basket receipt</th><th>Item entitlement</th></tr>
+    <tr><td><strong>What it is</strong></td><td>Evidence of who paid what, when</td><td>A right or claim attached to one line item</td></tr>
+    <tr><td><strong>Lifecycle</strong></td><td>Immutable; kept for tax/expense/audit</td><td>Active → returned / voided / stolen / transferred</td></tr>
+    <tr><td><strong>Transferable?</strong></td><td>No — it's the payer's tax record</td><td>Yes — follows the item through gift or resale</td></tr>
+    <tr><td><strong>Lives</strong></td><td>Off-chain, in email/file/wallet</td><td>Off-chain document + optional opaque on-chain state</td></tr>
+  </table></div>
+  <p>The reason is simple. The payer's fiscal receipt should <strong>never</strong> become a public transferable token: that would leak private spending and corrupt tax records. The item is different. The warranty, return right, and resale evidence attached to it do need to move from one owner to the next. Keeping the two apart is what lets the chain stay opaque while the item stays useful.</p>
+  <blockquote><p>A receipt proves <em>what was bought</em>. An entitlement <em>follows the item</em>. That distinction is the heart of VRS.</p></blockquote>
+
+  <h3>Commercial core + fiscal evidence</h3>
+  <p>Countries do not agree on what a "receipt" is. An EU VAT invoice, a Japanese qualified invoice, an India GST e-invoice, a China digital fapiao, and a US expense receipt are related but not the same object. Forcing them all into one global schema is a dead end. VRS keeps the <strong>common part small</strong> and binds the rest by profile:</p>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  Core["VRS commercial core<br/>issuer · date · line items<br/>amounts · commitments"]
+  Fiscal["Fiscal evidence profile<br/>tax invoice · IRN · QR<br/>fapiao · UBL · Peppol"]
+  Uses["VRS use cases<br/>expenses · returns<br/>warranty · resale"]
+  Core --> Uses
+  Fiscal -->|"hash / reference / status"| Core
+    </pre>
+  </figure>
+  <ul>
+    <li>The <strong>commercial core</strong> proves the commercial event — issuer, time, line items, quantities, disclosed amounts, and the commitments needed to derive entitlements. It verifies anywhere, with no knowledge of any country's tax regime.</li>
+    <li>A <strong>fiscal evidence profile</strong> binds the local tax artefact (its identifier, document hash, QR payload, status) without dragging its rules into the core.</li>
+  </ul>
+  <p>A verifier can then say exactly what it checked, and no more:</p>
+  <div class="pillrow">
+    <span class="pill ok">✓ VRS signature valid</span>
+    <span class="pill ok">✓ commercial core valid</span>
+    <span class="pill ok">✓ fiscal evidence bound</span>
+    <span class="pill ok">✓ India GST profile verified</span>
+    <span class="pill no">⚠ tax compliance not assessed</span>
+  </div>
+
+  <h3>The components</h3>
+  <p>No single party is trusted for the whole system. VRS is a small set of cooperating roles:</p>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  Merchant["Issuer<br/><i>merchant / manufacturer / courier</i>"]
+  ClaimRef["Claim / Ref service<br/><i>custody &amp; delivery</i>"]
+  Holder["Holder agent / wallet<br/><i>the user's control surface</i>"]
+  Registry["Canonical registry<br/><i>shared state &amp; ordering</i>"]
+  Verifier["Verifier<br/><i>desk / employer / contract</i>"]
+  Merchant -->|"signed receipt + bearer secrets"| ClaimRef
+  ClaimRef -->|"vrs1:ref — powerless"| Verifier
+  ClaimRef -->|"vrs1:claim — secrets, once"| Holder
+  Holder -->|"register / transfer / lifecycle hash"| Registry
+  Holder -->|"selective proof bundle"| Verifier
+  Verifier -->|"read status"| Registry
+    </pre>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th>Component</th><th>Trusted for</th><th>Not trusted for</th></tr>
+    <tr><td><strong>Issuer</strong></td><td>The statements it signs</td><td>Physical truth, legal title</td></tr>
+    <tr><td><strong>Claim / ref service</strong></td><td>Custody and availability</td><td>Making an invalid receipt valid</td></tr>
+    <tr><td><strong>Holder agent</strong></td><td>Key handling, transaction intent</td><td>Legal ownership, physical condition</td></tr>
+    <tr><td><strong>Registry</strong></td><td>Shared state and ordering</td><td>Off-chain document contents</td></tr>
+    <tr><td><strong>Verifier</strong></td><td>Applying its own policy</td><td>—</td></tr>
+  </table></div>
+  <p>The <strong>claim/ref service</strong> is the adoption wedge: it makes receipts useful <em>before</em> anyone has a wallet. The <strong>holder agent</strong> is the user's control surface once they want stateful workflows like resale or warranty.</p>
+</section>
+
+<!-- PART 2 -->
+<section id="part2" class="part">
+  <p class="partlabel">Part 2</p>
+  <h2>Cryptography and signatures</h2>
+  <p>VRS is built from a few well-understood primitives, put together so that a holder can prove <em>exactly</em> the one fact a verifier needs, and nothing else.</p>
+
+  <h3>Canonical encoding</h3>
+  <p>Everything that gets hashed must serialise the same way on every machine, or signatures won't match.</p>
+  <ul>
+    <li><strong>Hash function:</strong> <code>keccak256</code> throughout.</li>
+    <li><strong>Canonical JSON:</strong> JCS (RFC 8785), with a compact <strong>CBOR/COSE</strong> profile for NFC tags and fiscal devices.</li>
+    <li><strong>On-chain-reconstructable values:</strong> Solidity <code>abi.encode</code>, so a contract can recompute the same bytes.</li>
+    <li>Timestamps are Unix seconds; binary is lowercase <code>0x</code> hex; implementations <strong>reject</strong> malformed input rather than silently normalising it.</li>
+  </ul>
+
+  <h3>The commitment tree</h3>
+  <p>A receipt is structured as a <strong>Merkle tree</strong>. The header is leaf 0, each line item is a leaf, and the merchant signs the <strong>root</strong>.</p>
+  <figure>
+    <pre class="mermaid">
+flowchart TB
+  Root["Signed receiptRoot<br/>(merchant signs this)"]
+  Header["Header leaf<br/>issuer · issuedAt · type · fiscalHash"]
+  L1["Line item 1 leaf"]
+  L2["Line item 2 leaf"]
+  Root --- Header
+  Root --- L1
+  Root --- L2
+  L1 --- Core["core<br/>productId · qty · index · saltCommit"]
+  L1 --- Comm["commercial<br/>unitPrice · tax · currency"]
+  L1 --- Warr["warranty<br/>warrantor · duration · termsHash"]
+    </pre>
+  </figure>
+  <p>Each line-item leaf is <em>itself</em> a small commitment over groups: <code>core</code>, <code>commercial</code>, <code>warranty</code>, <code>descriptive</code>, <code>provenance</code>. Absent groups use a fixed "absent" sentinel. This sub-leaf split is the key to privacy: <strong>a verifier can be shown <code>core</code> (what was bought) without <code>commercial</code> (what was paid).</strong></p>
+
+  <h3>Selective disclosure — no ZK required</h3>
+  <p>To prove a line item, a holder reveals the sub-leaves the situation calls for, plus the Merkle path, plus the signed root. The verifier rehashes upward to the root and checks the signature.</p>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  R["Reward / token-gate"] -->|"core only"| D1["proves <i>what</i>, never <i>price</i>"]
+  W["Warranty claim"] -->|"core + warranty"| D2["proves purchase + terms"]
+  E["Expense submission"] -->|"all groups"| D3["full disclosure"]
+    </pre>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th>Disclosure level</th><th>Reveals</th></tr>
+    <tr><td><strong>Full document</strong></td><td>The entire receipt</td></tr>
+    <tr><td><strong>Core only</strong></td><td>Header + selected line <code>core</code> (no price)</td></tr>
+    <tr><td><strong>Selected groups</strong></td><td>Header + whatever groups the verifier requires</td></tr>
+    <tr><td><strong>Zero-knowledge</strong> <span style="color:var(--hint);font-weight:400">(future)</span></td><td>Proves a statement about the receipt, layered on the <em>same</em> commitments</td></tr>
+  </table></div>
+  <p class="note" style="font-size:13.5px;color:var(--hint);margin:-6px 0 18px">These are VRS <em>disclosure levels</em> — how much a proof reveals — written <code>full</code> / <code>core</code> / <code>core+&lt;group&gt;</code> / <code>zk</code>. The term has nothing to do with Ethereum layer-1 / layer-2.</p>
+  <p>This matters most when a contract consumes a proof on-chain: a disclosed leaf is then public <em>forever</em>, so the price must not ride along by default. Plain Merkle disclosure covers most needs today. Zero-knowledge proofs are an upgrade, not a prerequisite (see <a href="#forward">Forward compatibility</a>).</p>
+
+  <h3>Entitlement IDs, salts, and bearer secrets</h3>
+  <p>Each line item carries a random 32-byte <strong>entitlement salt</strong>. The on-chain entitlement ID is derived from it:</p>
+  <pre class="code"><code>saltCommit    = keccak256(abi.encode(T_SC,  entitlementSalt))
+entitlementId = keccak256(abi.encode(T_ENT, receiptRoot, lineIndex, saltCommit))</code></pre>
+  <p>The crucial property: documents and proofs only ever carry <code>saltCommit</code>, <strong>never the raw salt</strong>. So:</p>
+  <ul>
+    <li>the chain registry keys on <code>entitlementId</code> and learns nothing about the product, price, or merchant;</li>
+    <li>whoever holds the document <strong>and</strong> the salt can claim the entitlement (a <em>bearer instrument</em>) — which mirrors how most physical receipts already work;</li>
+    <li>someone shown a <em>proof</em> (which carries only <code>saltCommit</code>) <strong>cannot</strong> register or claim the entitlement.</li>
+  </ul>
+  <p>Bearer secrets live in a <strong>separate payload</strong> from the receipt document, and travel separately. This is why VRS has two link types:</p>
+  <pre class="code"><code>vrs1:ref:&lt;url&gt;     — powerless, safe to hand a desk or employer
+vrs1:claim:&lt;url&gt;   — carries bearer authority; only for the holder, redeemed once</code></pre>
+  <blockquote><p>Desks get <code>vrs1:ref</code>. Holders get <code>vrs1:claim</code>. Never the other way around.</p></blockquote>
+
+  <h3>Signatures and issuer identity</h3>
+  <p>VRS is signature-scheme-agnostic, with sensible defaults:</p>
+  <ul>
+    <li><strong>EIP-712</strong> typed-data signing where the issuer key is an Ethereum key.</li>
+    <li><strong>COSE / X.509</strong> where the issuer is already a fiscalisation device.</li>
+    <li><strong>EIP-712 + ERC-1271</strong> for the <em>holder challenge</em> (so smart-account wallets work too).</li>
+  </ul>
+  <p>A signature only proves <em>a key signed</em>. It becomes <em>"this issuer signed"</em> only under the <strong>verifier's policy</strong>. VRS does not require a global identity system or a DID. A verifier may instead accept any of: a local keyring, a small signed <strong>issuer manifest</strong> at <code>/.well-known/vrs/issuer.json</code>, an anchored manifest hash, or an attestation from a marketplace, PSP, GS1, or regulator it already trusts.</p>
+  <p>Issuers run a <strong>boring key hierarchy</strong> so a leaked key is not a catastrophe:</p>
+  <figure>
+    <pre class="mermaid">
+flowchart TB
+  Cold["🔒 Cold root key<br/>offline · establishes identity · recovery"]
+  Admin["Admin key<br/>publishes manifests · rotates delegates"]
+  Hot1["Live key — POS"]
+  Hot2["Live key — ecommerce"]
+  Hot3["Live key — service / mfg"]
+  Cold --> Admin
+  Admin --> Hot1
+  Admin --> Hot2
+  Admin --> Hot3
+    </pre>
+  </figure>
+  <p>The root never signs routine receipts. Live keys are short-lived, scoped, and individually revocable — if one is compromised, the issuer revokes it, publishes the affected window, and rotates a new one without destroying the issuer identity.</p>
+
+  <h3>Asserted vs proven time</h3>
+  <p>A signature proves <em>who</em> and <em>what</em> — never <em>when</em>. A key can sign any date. So VRS distinguishes:</p>
+  <ul>
+    <li><strong>Asserted time</strong> — the <code>issuedAt</code> field inside the signed document. Sufficient for ordinary sale receipts.</li>
+    <li><strong>Proven time</strong> — the document hash is included in an <strong>anchored</strong> Merkle root published to the chain, proving it existed by a given block.</li>
+  </ul>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  Asserted["Asserted time<br/>issuedAt in document"] --> Anchor["Document hash in<br/>anchored batch root"]
+  Anchor --> Proven["Proven time<br/>existed by block B"]
+    </pre>
+  </figure>
+  <p>Anchoring is optional for an ordinary sale receipt, but it carries the weight for provenance. The main attack on a resale history is not forgery; it is <strong>backdating</strong>: inventing years of service records the week before a sale. Proven time defeats this, because a record anchored in 2026 demonstrably did not exist in 2024, whatever date it carries. The reference verifier marks any history entry that has only <em>asserted</em> time.</p>
+
+  <h3>What VRS proves — and what it doesn't</h3>
+  <div class="tablewrap"><table>
+    <tr><th>VRS proves</th><th>VRS does <em>not</em> prove by itself</th></tr>
+    <tr><td>A recognised issuer signed the receipt</td><td>Tax / accounting compliance</td></tr>
+    <tr><td>The root commits to the disclosed fields</td><td>Legal title or ownership</td></tr>
+    <tr><td>A line item exists in the receipt</td><td>Physical possession</td></tr>
+    <tr><td>An entitlement derives from receipt + line + salt</td><td>Physical genuineness</td></tr>
+    <tr><td>The registered holder controls it (via challenge)</td><td>Complete lifecycle history</td></tr>
+    <tr><td>A lifecycle hash existed by an anchored time</td><td>That the issuer's statements are <em>honest</em></td></tr>
+    <tr><td>A serial matches a manufacturer batch commitment</td><td>—</td></tr>
+  </table></div>
+  <p>The honesty is deliberate. VRS speaks of <strong><code>holder</code></strong>, <strong><code>registered holder</code></strong>, and <strong><code>entitlement control</code></strong>, and never of unqualified "ownership." Physical authenticity still needs inspection, a secure tag, or a legal warranty; VRS supplies the <em>digital</em> half of the evidence, and labels it as such.</p>
+</section>
+
+<!-- PART 3 -->
+<section id="part3" class="part">
+  <p class="partlabel">Part 3</p>
+  <h2>How it works: use-case sequences</h2>
+
+  <h3>1 · Purchase &amp; issuance — no wallet required</h3>
+  <p>The first thing a user sees is an ordinary email. The <code>.receipt</code> verifies on its own, and the <code>vrs1:ref</code> is safe to forward.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant M as Merchant / till
+  participant CR as Claim / ref service
+  participant C as Customer email
+  M->>M: Build and sign receipt document
+  M->>CR: Store document + bearer secrets (separately)
+  M->>C: HTML receipt + .receipt + vrs1:ref (+ optional vrs1:claim)
+  Note over C: Customer can ignore it<br/>and still get value later
+    </pre>
+  </figure>
+  <details class="walk" data-uc="issuance"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-issuance"></div></details>
+
+  <h3>2 · Expense — verification with no chain at all</h3>
+  <p>The highest-volume case, and the easiest to adopt: no wallet, no gas, no blockchain.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant C as Customer
+  participant E as Expense / accounting tool
+  participant R as Ref endpoint
+  C->>E: Forward receipt email
+  E->>R: Fetch powerless receipt + credit graph
+  E->>E: Verify signature, line items, totals, credits
+  Note over E: Structured ingest — no OCR,<br/>no PDF scraping, no chain
+    </pre>
+  </figure>
+  <details class="walk" data-uc="expense"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-expense"></div></details>
+
+  <h3>3 · Return &amp; credit — stopping cross-branch refund fraud</h3>
+  <p>A return produces a <strong>signed credit document</strong> linked to the original receipt, so expense and tax systems later see the reversal.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant C as Customer
+  participant D as Returns desk
+  participant R as Ref endpoint
+  participant G as Credit graph
+  participant E as Expense tool
+  C->>D: Show vrs1:ref (line proof)
+  D->>R: Fetch receipt + existing credits
+  D->>D: Check return eligibility and status
+  D->>G: Add signed credit document
+  E->>G: Later sees credit, reverses the expense
+    </pre>
+  </figure>
+  <details class="walk" data-uc="return"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-return"></div></details>
+
+  <h3>4 · Warranty — survives lost receipts, follows the item</h3>
+  <p>Because the warranty terms sit in their own sub-leaf, the holder can prove them without revealing the price.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant H as Holder
+  participant W as Warranty desk
+  participant Reg as Registry
+  H->>W: Present core + warranty sub-leaves + path + root
+  W->>W: Verify signature, check term not yet expired
+  W->>Reg: Check status Active, confirm presenter is holder
+  Reg-->>W: Holder and status confirmed
+  W-->>H: Warranty honoured
+    </pre>
+  </figure>
+  <details class="walk" data-uc="warranty"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-warranty"></div></details>
+
+  <h3>5 · Resale — the buyer checks who controls the rights</h3>
+  <p>A proof on its own proves the <em>receipt line</em>, not that the seller still controls the <em>registered</em> entitlement. So the buyer challenges the current holder key.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant S as Seller
+  participant B as Buyer
+  participant Reg as Registry
+  S->>B: Resale bundle — receipt proof + selected lifecycle docs
+  B->>Reg: Check status Active and holderOf
+  B->>S: Challenge: sign as current holder
+  S-->>B: Holder signature
+  S->>Reg: transferWithAuth → buyer
+  Reg-->>B: Buyer becomes registered holder
+  Note over B: Still not proof of legal title<br/>or physical condition by itself
+    </pre>
+  </figure>
+  <details class="walk" data-uc="resale"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-resale"></div></details>
+
+  <div class="callout info">
+    <h4>Privacy roadmap for resale</h4>
+    <p>Transfer is the one step that writes to a public chain, so it is where privacy needs the most care. Today the registry stores <code>holder</code> and <code>firstHolder</code> as <strong>plaintext addresses</strong> and emits <code>Transferred(from, to)</code> events, so a passive observer can reconstruct an item's whole ownership chain. (The addresses are opaque only until one of them is linked to a person.) The plan is layered, and each step is useful on its own:</p>
+    <ul>
+      <li><strong>Stealth-address holders (ERC-5564/6538).</strong> Each holder is a fresh address only they can spend from, unlinkable to their identity — <em>provided gas is paid externally</em> (a relayer or ERC-4337 paymaster), otherwise the funding address re-links the holder.</li>
+      <li><strong>Holder commitments + a nullifier set</strong> in place of the plaintext <code>holderOf</code> mapping (the Zcash/RAILGUN note model, adopted natively so VRS keeps its own status semantics and composability). Transfer becomes a note re-commitment, not a public owner update.</li>
+      <li><strong>ZK proofs for the proving paths</strong> — a replay-protected membership proof to satisfy a smart contract, and selective "first / Nth holder" disclosure when a buyer wants it — over the same commitments.</li>
+    </ul>
+    <p>Net residual leak: a chain observer sees only that <em>some</em> entitlement had an event (a sale or update happened), never <strong>who</strong> holds it or its ownership history. See <a href="#forward">Forward compatibility</a>.</p>
+  </div>
+
+  <h3>6 · Lifecycle history — the chain stores a hash, not the document</h3>
+  <p>A repairer signs a service attestation; only its <strong>hash</strong> is logged on-chain. The full document stays private and can be selectively disclosed at resale.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant Svc as Repairer / inspector
+  participant H as Holder agent
+  participant Reg as Registry
+  participant Buyer as Future buyer
+  Svc->>H: Signed lifecycle attestation
+  H->>Reg: recordEvent(entitlementId, attestationHash)
+  Note over Reg: Only the hash is stored —<br/>never notes, photos, locations
+  H->>Buyer: Reveal selected records + transfer access on sale
+    </pre>
+  </figure>
+  <details class="walk" data-uc="lifecycle"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-lifecycle"></div></details>
+
+  <h3>7 · Manufacturer authenticity — detect clones, without overclaiming</h3>
+  <p>Each serial is committed against a manufacturer batch root, and a <strong>nullifier</strong> marks a serial as used, so a cloned serial is detectable.</p>
+  <figure>
+    <pre class="mermaid">
+flowchart TB
+  Batch["Manufacturer batch<br/>serialRoot"] --> Serial["Serial + serial salt"]
+  Serial --> Null["Nullifier<br/>used once"]
+  Channel["Channel assurance<br/>allowance / grant chain"] --> Null
+  Physical["Physical inspection<br/>(outside VRS)"] -.-> Null
+    </pre>
+  </figure>
+  <details class="walk" data-uc="manufacturer"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-manufacturer"></div></details>
+  <div class="callout warn"><p>VRS can say: <b>"Serial authenticated; channel verified; this serial not previously seen."</b> It <strong>cannot</strong> say "this physical object is genuine" — that still needs inspection or secure tags.</p></div>
+  <p>Provenance for resale is a <strong>three-part check</strong>: a Digital Product Passport proves <em>what the item is</em>; the entitlement proves <em>who holds the rights</em>; the receipt proves <em>where and when it was sold</em>. None alone is provenance; together they are.</p>
+
+  <h3>8 · Recall — reaches the current owner, names no one</h3>
+  <p>A recall keyed to the manufacturing <em>batch</em> reaches whoever holds the item now, second- and third-hand owners included, and reaches them without a contact database. The manufacturer broadcasts once; each wallet matches it against the batches it holds.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant M as Manufacturer / authority
+  participant Reg as Notice registry (anchored)
+  participant W as Holder agent / wallet
+  participant H as Holder
+  M->>M: Sign recall notice (batchId, severity, action, remedy)
+  M->>Reg: Anchor notice keyed on batchId (names no owner)
+  W->>Reg: Watch recalls for the batchIds it holds
+  Reg-->>W: Recalled(batchId) matches a held item
+  W->>H: Surface the recall and remedy
+  Note over W,Reg: No contact DB — owner never disclosed, reaches 2nd / 3rd owners
+    </pre>
+  </figure>
+  <details class="walk" data-uc="recall"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-recall"></div></details>
+  <div class="callout warn"><p>VRS supplies the <b>authenticated notice and the broadcast-by-batch primitive</b> — not a transport, a relay, or a contact list. The anchored notice is <em>constructive notice</em> to every holder of the batch; opt-in push (wallet messaging, relays) adds reach to passive owners by the owner's own choice.</p></div>
+
+  <h3>9 · On-chain consumption — a smart contract is the verifier</h3>
+  <p>In every case so far the verifier was a human or a server. The capability that is hard to get any other way is this: a <strong>smart contract checks a proof of purchase itself</strong> and acts on it — a loyalty reward, a token gate, an escrow release — with <strong>no merchant API, no off-chain voucher, and no one's permission</strong>. Proof of purchase becomes a composable credential.</p>
+  <figure>
+    <pre class="mermaid">
+sequenceDiagram
+  participant H as Holder
+  participant C as Consuming contract
+  participant V as VRS verifier (stateless)
+  participant Reg as Registry
+  H->>C: Submit line proof (core only, no price)
+  C->>V: verifyLineItem(proof)
+  V->>V: Check issuer signature, Merkle path, attester policy
+  V-->>C: entitlementId, productId hash, issuer identity
+  C->>Reg: holderOf and statusOf
+  Reg-->>C: caller is holder, status Active
+  C->>C: Reject if entitlementId already consumed
+  C-->>H: Reward granted / gate opened / escrow released
+    </pre>
+  </figure>
+  <details class="walk" data-uc="consumption"><summary>Walk through the data — documents, signatures &amp; chain state</summary><div class="walkbody" id="walk-consumption"></div></details>
+  <p>The verifier is <strong>stateless and permissionless</strong>: one signature recovery, a handful of hashes up the Merkle path, one attester lookup — cheap on an L2. The consuming contract layers its own policy on top. Three properties make this safe and private:</p>
+  <ul>
+    <li><strong>Bind to the item, not the presenter.</strong> Rewards and one-time perks key on the <code>entitlementId</code>, so an item can't farm a reward again each time it's resold — consumed once, forever.</li>
+    <li><strong>Core-only disclosure.</strong> The chain learns <em>what</em> was bought (inherent to a product-specific reward) but never <em>what was paid</em> — the price sub-leaf stays off-chain.</li>
+    <li><strong>Issuer policy is the contract's.</strong> The verifier checks the signature against an accepted attester set; the contract can additionally gate on, say, an authorised retailer — no merchant cooperation required at claim time.</li>
+  </ul>
+  <div class="callout"><p>The same mechanism turns a <code>delivery</code> receipt into <strong>deterministic escrow</strong>: <code>sale</code>, <code>delivery</code>, and <code>service</code> are one signed format with three issuer roles, so an escrow contract releases funds on a courier-signed delivery proof exactly as a reward contract pays out on a sale proof — one spec, three oracles.</p></div>
+</section>
+
+<!-- WHY CHAIN -->
+<section id="why-chain" class="part">
+  <p class="partlabel">The state layer</p>
+  <h2>Why a chain at all?</h2>
+  <p>Use the chain only where <strong>no single party should be the database</strong>:</p>
+  <ul>
+    <li>returns across branches and retailers;</li>
+    <li>entitlement transfer and current holder;</li>
+    <li>stolen / voided / returned flags;</li>
+    <li>lifecycle event hashes (proven time);</li>
+    <li>serial nullifiers;</li>
+    <li>consumption by smart contracts (rewards, escrow, gating).</li>
+  </ul>
+  <p>Everything private stays off-chain. The chain provides <strong>shared state and proven ordering</strong> — nothing more. The document layer is chain-neutral; the default state profile is Ethereum-aligned because the most interesting downstream uses are smart contracts, ERC-1271 accounts, and composable rewards.</p>
+</section>
+
+<!-- APPENDIX -->
+<section id="appendix" class="part">
+  <p class="partlabel">Worked example</p>
+  <h2>A worked commitment tree</h2>
+  <p>This is a real, reproducible example: every hash below is produced by the exact construction in the reference implementation (<code>VRSLib.sol</code>), so the values are the cross-implementation conformance fixtures byte-for-byte. Nothing here is illustrative hand-waving.</p>
+
+  <h3>The receipt</h3>
+  <p>A two-line shop receipt. Line 0 is loose apples (no warranty, no serial); line 1 is a toaster (manufacturer-endorsed, with warranty + serial).</p>
+  <div class="tablewrap"><table>
+    <tr><th>Field</th><th>Line 0 — Apples</th><th>Line 1 — Toaster</th></tr>
+    <tr><td><code>lineIndex</code></td><td><code>0</code></td><td><code>1</code></td></tr>
+    <tr><td><code>productId</code></td><td><code>txt:Apples, loose</code></td><td><code>(01)09506000134352(21)SER1234</code></td></tr>
+    <tr><td><code>qtyMilli</code></td><td><code>535</code> (0.535 kg)</td><td><code>1000</code> (1.000 unit)</td></tr>
+    <tr><td><code>commercial</code></td><td><code>299</code> minor · <code>700</code> bps · <code>EUR</code></td><td><code>4999</code> minor · <code>1900</code> bps · <code>EUR</code></td></tr>
+    <tr><td><code>warranty</code></td><td><em>absent</em></td><td>warrantor <code>gln:4012345000009</code> · 730 days</td></tr>
+    <tr><td><code>descriptive</code></td><td><em>absent</em></td><td>JCS hash of details</td></tr>
+    <tr><td><code>provenance</code></td><td><em>absent</em></td><td>batchId + serialSaltCommit</td></tr>
+  </table></div>
+  <p>Header: issuer <code>0x…00A1</code>, <code>issuedAt = 1790000000</code>, <code>receiptType = 0</code> (sale), a <code>fiscalHash</code>, and no delegation. The tree has four leaves — header + two items, padded to a power of two:</p>
+  <figure>
+    <pre class="mermaid">
+flowchart TB
+  root["<b>receiptRoot</b><br/>0x488104…8338e9"]
+  n01["n01"]
+  n23["n23"]
+  h["header<br/>leaf 0"]
+  i0["item0 · apples<br/>leaf 1"]
+  i1["item1 · toaster<br/>leaf 2"]
+  pad["PAD<br/>leaf 3"]
+  root --- n01
+  root --- n23
+  n01 --- h
+  n01 --- i0
+  n23 --- i1
+  n23 --- pad
+    </pre>
+  </figure>
+
+  <h3>Step 0 — Domain-separation tags</h3>
+  <p>Every hash is prefixed with a tag = <code>keccak256("VRS:…:v1")</code>, so a <code>core</code> hash can never collide with a <code>header</code> hash or an internal node.</p>
+  <details class="vals">
+    <summary>The twelve tags used below (full values)</summary>
+    <pre class="code"><code>T_CORE   = 0x8a4ee4fa9ff1729de65690069a75fb0fe75ca23d690da07336260d98cc7293cd
+T_COMM   = 0x358226e166aa8c7ced4d8343e87c9567e309ed2969c35c022dea13a313ff5651
+T_WARR   = 0xc2c8821abc41639e957f102f6b1aab82eae905435926bf2d42cef4e55d2c5e95
+T_DESC   = 0xaa20af8da0e66b0a1e590f63b2e2105d75c6cc39e388e0c860b9b2ac986514bc
+T_PROV   = 0x83cc047a50da23e06af35218acadee09df695f7f0a316958a1fcd4f75f062a38
+T_ITEM   = 0x1919f9089163d10a8eb4e010964c557e39261fd3439a80cd25687959a84ccc57
+T_HEADER = 0x21bdae2a4644583afdd91ab3ccb86310923baaf026c143ab809b5bd395b57613
+T_NODE   = 0xc813b5e659ae4edfa27d75b12bb8086b79fde7b7170a987cbf919736ffe04f73
+T_SC     = 0x228c9873854eab1871d31310da1ab0d520febee8f345f5d073b7d45128693b10
+T_ENT    = 0x3cb2d8110d21e7d0b591288f57ad799ae2b029797ef8c8cb986bc8c9ef63f7b4
+PAD      = 0xb6dcc3947334a44996999477a127b82b89d54c2f16497a503bb6d9616fde8458
+ABSENT   = 0x5ae9378f72a1c32fa7eb2bdcfafbd1a8e5b4b8f9ac0a08830cbb0b1da41b2829</code></pre>
+  </details>
+
+  <h3>Step 1 — Salt commitments (the privacy hinge)</h3>
+  <p>The raw <code>salt</code> is a <strong>bearer secret</strong> and never enters the tree. Only its commitment does:</p>
+  <pre class="code"><code>saltCommit = keccak256(abi.encode(T_SC, salt))
+
+sc0 (apples)  = 0x39c8c9fe…72a4e352
+sc1 (toaster) = 0xf305f1fa…deb491a1</code></pre>
+
+  <h3>Step 2 — Line 0 (apples), the simple leaf</h3>
+  <pre class="code"><code>core0 = keccak256(abi.encode(T_CORE, 0, "txt:Apples, loose", 535, sc0))
+      = 0xa78dee4b…ebb35812
+
+comm0 = keccak256(abi.encode(T_COMM, 299, 700, "EUR"))
+      = 0xadfb0349…f64f59b3
+
+# warranty, descriptive, provenance absent → ABSENT sentinel
+item0 = keccak256(abi.encode(T_ITEM, core0, comm0, ABSENT, ABSENT, ABSENT))
+      = 0xcb865da9…f6ccc192</code></pre>
+
+  <h3>Step 3 — Line 1 (toaster), all five groups present</h3>
+  <pre class="code"><code>core1 = keccak256(abi.encode(T_CORE, 1, "(01)09506000134352(21)SER1234", 1000, sc1))
+      = 0x21042e0b…d511f9d1
+
+comm1 = keccak256(abi.encode(T_COMM, 4999, 1900, "EUR"))
+      = 0x7bfebb74…6b64739d
+
+warr1 = keccak256(abi.encode(T_WARR, "gln:4012345000009", 730, keccak256("terms")))
+      = 0x753fda7c…faae0961
+
+desc1 = keccak256(abi.encode(T_DESC, keccak256(JCS(details))))
+      = 0x4259954c…bb826364
+
+prov1 = keccak256(abi.encode(T_PROV, batchId, serialSaltCommit))
+      = 0xb2dbb672…bbf61c33
+
+item1 = keccak256(abi.encode(T_ITEM, core1, comm1, warr1, desc1, prov1))
+      = 0x9e327d40…fa5a6697</code></pre>
+  <p>This is where <strong>selective disclosure</strong> lives: to prove "I bought this toaster" you reveal <code>core1</code> and pass <code>comm1, warr1, desc1, prov1</code> as opaque siblings — the verifier rebuilds <code>item1</code> without ever learning the €49.99 price.</p>
+
+  <h3>Step 4 — Header leaf</h3>
+  <pre class="code"><code>delegationHash = ABSENT          # issuer signs directly, no delegate key
+hLeaf = keccak256(abi.encode(T_HEADER, 0x…00A1, 1790000000, 0, fiscalHash, ABSENT))
+      = 0xd38a9ba1…27e7c1fc</code></pre>
+
+  <h3>Step 5 — Combine to the root</h3>
+  <p>Internal nodes are tagged too, and order matters (left child first):</p>
+  <pre class="code"><code>n01  = keccak256(abi.encode(T_NODE, hLeaf, item0)) = 0x6bcbb924…66f06158
+n23  = keccak256(abi.encode(T_NODE, item1, PAD))   = 0x472d9d47…b24e3f3d
+root = keccak256(abi.encode(T_NODE, n01,   n23))   = 0x4881046b…ff8338e9   ◄ receiptRoot</code></pre>
+
+  <h3>Step 6 — Sign the root (EIP-712)</h3>
+  <p>The merchant signs a typed-data digest over <code>(receiptRoot, schemaHash)</code>. The domain is chain-agnostic (no chainId), so the same receipt verifies anywhere:</p>
+  <pre class="code"><code>schemaHash    = 0xe18b2d7e…6c456993     # keccak256("vrs/receipt/1.0")
+signingDigest = 0xd0709378…30ab9dc0
+issuerSig     = ECDSA(signingDigest, issuerKey)</code></pre>
+
+  <h3>Step 7 — Entitlement ID and membership proof</h3>
+  <p>The toaster's on-chain entitlement ID — opaque, leaking nothing about product or price:</p>
+  <pre class="code"><code>entitlementId = keccak256(abi.encode(T_ENT, root, 1, sc1))
+              = 0x47cc2d0c…b8cb979d</code></pre>
+  <p>To prove the toaster line is in the signed receipt, a verifier is given leaf <code>item1</code> (index 2), the path <code>[PAD, n01]</code>, and folds it using the bits of the leaf index (<code>2 = 0b10</code>):</p>
+  <pre class="code"><code>start = item1
+bit 0 = 0 (left):  node(item1, PAD) = n23   ✓
+bit 1 = 1 (right): node(n01,  n23) = root  ✓ matches receiptRoot</code></pre>
+  <p>The fold reproduces <code>root</code> exactly — confirming membership while disclosing only <code>item1</code>'s opaque siblings and the internal nodes.</p>
+
+  <details class="vals">
+    <summary>Full 32-byte values (reproducible fixtures)</summary>
+    <pre class="code"><code>sc0              = 0x39c8c9fee863d4cb86c9440505660b5a8f3168c2333cd0b54b22e6d572a4e352
+sc1              = 0xf305f1fa6acdc6447fd91957d44133a768a40a15ec7668a31e247851deb491a1
+core0            = 0xa78dee4b1640b8aa26d648c720861094a1995208dfaf7f9650e9a7a7ebb35812
+comm0            = 0xadfb0349b767de270ca8cdc94dbff174ed022fad76c25f41d8550130f64f59b3
+item0            = 0xcb865da923773d20c73b4ddf5fafb4f5c2eecb32aacb09fa81743fb7f6ccc192
+core1            = 0x21042e0b4bc4e2a189a845a4cf7e252dd6cd42b156cfc9d5a1fda55fd511f9d1
+comm1            = 0x7bfebb74ddbd0fbf527074a0f2cec9e75a6cb5258226a35d8ae3c9de6b64739d
+warr1            = 0x753fda7cb4f5a47bdc8c4bfcdb95f7b755a04ce1cf713bb564dbf6d9faae0961
+desc1            = 0x4259954ceb3963fd57c5c330995802f25cfdc903e8396266c453534dbb826364
+batchId          = 0x33bdafc4fb2e72e30a329411a1f8fc1a4beeb4b4a6cfc22fc9914961ab29679f
+serialSaltCommit = 0x8b8bb26dda52dc0b732097526c876b03529e4b361882a0441060a6ac6049a54a
+prov1            = 0xb2dbb672fb771a06a08d30772d621efa377a67609d1542a32e72ef9ebbf61c33
+item1            = 0x9e327d4026fac89c971f3f73e3c3fca9bcfd52aabfdac542a4662d0cfa5a6697
+fiscalHash       = 0x8c58af25d19af53f6139ce81f683c35fa8e839c491824ab75628ca508180498a
+hLeaf            = 0xd38a9ba17d8ff6a2ff7463d7607a2cc0e83a3a6f1e246b517dc4474e27e7c1fc
+n01              = 0x6bcbb924a70cd644b98692e95099e3c14b317f09af7c42493527aa3666f06158
+n23              = 0x472d9d4799022fdad3c1dbf8da803ed1598ebb4a87c8a4af188a33c4b24e3f3d
+root             = 0x4881046b77385af41d3b87e28fdfc1539e390956eba11046f44d5397ff8338e9
+schemaHash       = 0xe18b2d7e5b1a7d88d3e0f0c05ba5cb54c52290be82766537a0480bee6c456993
+signingDigest    = 0xd07093789d5cccf67614603bd751ab8c5006b093a6e67a91823bde9430ab9dc0
+entitlementId    = 0x47cc2d0c6e409c69d9f52be15af626038008bce8f57e6b83cec5c1f5b8cb979d</code></pre>
+  </details>
+</section>
+
+<!-- THE CONTRACTS -->
+<section id="contracts" class="part">
+  <p class="partlabel">The contracts</p>
+  <h2>Key contracts and standards</h2>
+  <p>VRS's on-chain layer is a small set of contracts — the reference implementation of the canonical <strong>Ethereum State Profile</strong>. The document layer stays chain-neutral; these are only what a verifier or holder <em>reads</em> and what a consuming contract builds on. Addresses come from the signed <strong>deployment manifest</strong>; a noncanonical deployment MUST NOT be treated as VRS state. The reference contracts are draft and unaudited, and live in <code>Reference/04-reference-contracts/src</code>.</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Contract</th><th>Role</th><th>Key entry points</th></tr>
+    <tr><td><strong>AttestationRegistry</strong> (+ <strong>AnchorRegistry</strong>)</td><td>Issuer identity &amp; proven time</td><td><code>attest</code> · <code>revoke</code> · <code>isAttested</code> — <code>anchor</code> · <code>anchoredAt</code></td></tr>
+    <tr><td><strong>EntitlementRegistry</strong></td><td>Ownership, status &amp; lifecycle</td><td><code>register</code> · <code>transferWithAuth</code> · <code>recordEvent</code> · <code>holderOf</code></td></tr>
+    <tr><td><strong>MintAllowanceRegistry</strong></td><td>Manufacturer authenticity (serial nullifiers)</td><td><code>authenticate</code> · <code>nullifierUsed</code> · <code>serialRoot</code></td></tr>
+    <tr><td><strong>ReceiptVerifier</strong></td><td>Stateless proof verifier + attester policy</td><td><code>verifyLineItem</code></td></tr>
+    <tr><td><em>Private holder registry</em> <span style="color:var(--hint);font-weight:400">(planned)</span></td><td>Privacy-preserving ownership</td><td>commitment accumulator + nullifier set</td></tr>
+    <tr><td><strong>RewardDistributor</strong> <span style="color:var(--hint);font-weight:400">(example)</span></td><td>Ownership-gated consumer</td><td><code>claim</code></td></tr>
+  </table></div>
+
+  <h3>Identity registry — <code>AttestationRegistry</code> (+ <code>AnchorRegistry</code>)</h3>
+  <p>Turns <em>"a key signed"</em> into <em>"an attested merchant / manufacturer / courier."</em> It is verifier-relative — each consumer picks which attesters it accepts — and is <strong>not</strong> a DID system: roles are <code>bytes32</code> tags (<code>keccak256("merchant")</code>, …) and it pairs with the off-chain issuer manifest. <code>AnchorRegistry</code> is the companion time layer: anchoring a batch root upgrades asserted <code>issuedAt</code> to proven time.</p>
+  <pre class="code"><code>// issuer identity (attestation)
+function attest(address subject, bytes32 role, uint64 validFrom, uint64 validUntil)
+function revoke(address subject, bytes32 role)
+function isAttested(address subject, bytes32 role, address attester, uint64 at) returns (bool)
+
+// proven time
+function anchor(bytes32 root)
+function anchoredAt(bytes32 root) returns (uint64)</code></pre>
+
+  <h3>Registry — <code>EntitlementRegistry</code></h3>
+  <p>The shared ownership / status / lifecycle state, keyed by the opaque <code>entitlementId</code>. Registration is consumer-pull (the issuer never transacts) and offers a commit–reveal variant for public mempools.</p>
+  <pre class="code"><code>struct Entitlement { Status status; address holder; address firstHolder; address issuer; }
+// Status: Unregistered | Active | Returned | Voided | Stolen
+
+function register(IssuerBinding b, uint256 lineIndex, bytes32 salt)   // + registerCommitted (commit–reveal)
+function transfer(bytes32 id, address to)
+function transferWithAuth(bytes32 id, address to, uint64 deadline, bytes holderSig)
+function recordEvent(bytes32 id, bytes32 attestationHash)             // logs a hash, never contents
+function flagStolen(bytes32 id) / clearStolen / markReturned / void
+function holderOf(bytes32 id) returns (address)</code></pre>
+  <div class="callout warn"><p><b>Privacy:</b> <code>holder</code> and <code>firstHolder</code> are plaintext today, and <code>Transferred(from, to)</code> events expose the ownership chain. The privacy-preserving variant below is the planned fix — see the <a href="#part3">resale privacy roadmap</a>.</p></div>
+
+  <h3>Manufacturer nullifier — <code>MintAllowanceRegistry</code></h3>
+  <p>Serial authenticity and clone detection, plus mint-allowance / channel assurance. Revealing a serial salt sets a <strong>set-once nullifier</strong>; a second use of the same serial reverts — that is the clone signal. Deliberately <em>transparent</em> (the serial/batch on-chain is fine), unlike the holder scheme which must hide.</p>
+  <pre class="code"><code>mapping(bytes32 => bool)    nullifierUsed;     // set once; second use reverts (clone)
+mapping(bytes32 => bytes32) boundEntitlement;  // nullifier => entId
+// nullifier = keccak256(T_NULL, batchId, serial, …);  serial ∈ serialRoot (T_SNODE tree)
+
+function authenticate(...)            // reveal serialSalt, set nullifier, bind to entId
+function authenticateCommitted(...)   // commit–reveal (front-running defence)</code></pre>
+  <p class="note" style="font-size:13.5px;color:var(--hint);margin:-6px 0 18px">Proves serial / receipt / channel evidence — never physical genuineness. The same set-once-nullifier + commit–reveal machinery is what the private holder registry reuses (domain-separated).</p>
+
+  <h3>Privacy-preserving registry <span style="color:var(--hint);font-weight:500;font-size:0.7em">PLANNED</span></h3>
+  <p>The forward variant of <code>EntitlementRegistry</code>: replace the plaintext <code>holder</code> mapping with a <strong>commitment accumulator</strong> (an incremental Merkle tree of holder "notes") plus a published <strong>nullifier set</strong>. Transfer becomes a spend-and-recreate to a stealth address; proving ownership becomes a ZK membership proof (replay-scoped by a per-context nullifier) rather than a public <code>holderOf</code> read.</p>
+  <pre class="code"><code>// sketch — not yet implemented
+bytes32 commitmentRoot;                 // accumulator of holder notes  C = H(entId, spendPubKey, blind)
+mapping(bytes32 => bool) holderNullifierUsed;   // domain tag VRS:holder-nullifier:v1
+
+function transferNote(Proof spend, bytes32 newCommitment)   // burn old note, insert new (to stealth addr)
+function proveOwnership(Proof membership, bytes32 contextNullifier) returns (bool)</code></pre>
+  <p class="note" style="font-size:13.5px;color:var(--hint);margin:-6px 0 18px">Reuses the <code>MintAllowanceRegistry</code> nullifier pattern and commit–reveal, with its own domain tag and an added ZK/hiding layer. Full design: <code>Reference/03-extensions-and-analysis/private_ownership_transfer.md</code>.</p>
+
+  <h3>Stateless verifier — <code>ReceiptVerifier</code></h3>
+  <p>The bridge between an off-chain proof and an on-chain consumer. It verifies a line-item proof (issuer signature + Merkle path + delegation) against <em>its</em> attester policy and returns the facts a contract needs. Permissionless and stateless; consuming contracts layer their own policy on top. It enforces the delegate's role (a key delegated for <code>merchant</code> can't act as <code>manufacturer</code>).</p>
+  <pre class="code"><code>constructor(IAttestationRegistry attestations, IAnchorRegistry anchors, bytes32 role, address[] attesters)
+
+function verifyLineItem(HeaderDisclosure h, CoreDisclosure c, …)
+    returns (bytes32 receiptRoot, bytes32 entId, bytes32 productIdHash, address identity)</code></pre>
+
+  <h3>Example — an ownership-gated contract (<code>RewardDistributor</code> + variants)</h3>
+  <p>The canonical consumption pattern is one call: <code>verifyLineItem → (entId, productIdHash, identity) → apply program policy</code>. The shipped example rewards verified purchasers; the same shape gates anything on ownership.</p>
+  <pre class="code"><code>function claim(HeaderDisclosure h, CoreDisclosure c) {
+    (, bytes32 entId, bytes32 productIdHash, address identity) = VERIFIER.verifyLineItem(h, c, …);
+    require(authorisedRetailer[identity]);          // optional grey-market gate
+    require(!claimed[entId]);  claimed[entId] = true;   // ★ ONCE PER ITEM — bind to entId, never the presenter
+    points[msg.sender] += rateFor[productIdHash];   // reward; chain learns WHAT, never the price
+}</code></pre>
+  <p>Three flavours of the same <em>verify → gate</em> pattern:</p>
+  <div class="tablewrap"><table>
+    <tr><th>Gate</th><th>How</th></tr>
+    <tr><td><strong>Reward purchasers</strong> (first registrants)</td><td>Bind once-per-item to <code>entId</code> (the ★ above). For "original buyer only," gate on <code>firstHolder</code> — which never changes through resale.</td></tr>
+    <tr><td><strong>DAO voting for current owners</strong></td><td>Voting power = items where <code>holderOf(entId) == voter</code> and <code>status == Active</code>. Rights move with the item on resale; the manufacturer doesn't curate the voter set.</td></tr>
+    <tr><td><strong>IoT config for the current owner</strong></td><td>A contract maps <code>entId → owner-controlled config</code> (e.g. a callback address). The device reads the current authorised address; on transfer the new holder updates it — so the sensor reports to whoever <em>currently</em> holds the item, with no manufacturer in the loop.</td></tr>
+  </table></div>
+  <div class="callout info"><p>Under the <strong>privacy-preserving registry</strong>, "current owner" gating doesn't need a plaintext <code>holderOf</code>: the owner submits a ZK proof "I hold an <code>Active</code> entitlement for product X" with a per-context nullifier — so a DAO vote, reward claim, or device update verifies ownership <strong>without</strong> revealing which item or who the holder is.</p></div>
+</section>
+
+<!-- RELATED STANDARDS -->
+<section id="standards" class="part">
+  <p class="partlabel">Related standards</p>
+  <h2>Where it fits</h2>
+  <p>VRS is not trying to replace the standards that already touch receipts and products. For the most part it binds to them, sits beneath them, or fills a gap they leave. In one line: VRS is the verifiable, private, merchant-rooted <em>receipt-and-ownership</em> layer, and it is designed to align with — not reinvent — product identity, fiscal e-invoicing, verifiable credentials, and the EU Digital Product Passport.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Standard / initiative</th><th>What it is (2026)</th><th>How VRS relates</th></tr>
+    <tr><td><strong>GS1 GTIN, Digital Link, Digital Signatures</strong></td><td>Product identity and a web resolver; GS1 now has a digital-signature application standard carried in an Application Identifier. Established.</td><td>VRS <em>uses</em> GTIN element strings as product identity rather than inventing its own, and GS1 Digital Link is the natural join key between a receipt and a passport. Align, don't reinvent.</td></tr>
+    <tr><td><strong>e-receipts &amp; wallet receipts</strong> (GS1 digital-receipt work, the Swedish digital-receipt standard, Apple Wallet Orders, Google Wallet)</td><td>Transaction-data schemas and signed order packages for delivering a receipt to a phone. Live, but proprietary or fragmented.</td><td>These handle <em>delivery and schema</em>, not verifiability or transferable ownership. A VRS receipt can ride in a wallet pass and adds the issuer signature, selective disclosure, and on-chain status they lack. Overlap on schema; VRS supplies the trust.</td></tr>
+    <tr><td><strong>Fiscal e-invoicing</strong> (Peppol BIS 3.0, EN 16931, UBL, Italy SdI, India GST / IRN)</td><td>Mandated tax-invoice formats and clearance systems; Peppol identifies items with GS1. Widely mandated and growing.</td><td>VRS does not replace them. Its <em>fiscal-evidence profile</em> binds the national artifact by hash and reference and records its status. They are the tax truth; VRS is the commercial core and the binding.</td></tr>
+    <tr><td><strong>Verifiable credentials</strong> (W3C VC 2.0, SD-JWT VC, EUDI wallet / eIDAS 2.0)</td><td>VC 2.0 became a W3C Recommendation in 2025, with standardised selective disclosure; SD-JWT VC is an active IETF draft used by the EU wallet; VCs are endorsed within the DPP.</td><td>Same shape as a VRS receipt: an issuer-signed, selectively disclosable claim. A VRS receipt is bridgeable to a VC. This is the credential-presentation alignment target — express the issuer/holder layer so it can be shown in a wallet that expects a VC.</td></tr>
+    <tr><td><strong>EU Digital Product Passport</strong> (ESPR)</td><td>Framework regulation; working plan adopted April 2025. The battery passport comes first, from 18 February 2027, then textiles and other groups. Built on GS1 Digital Link and EPCIS; public; manufacturer-rooted.</td><td>The strongest complement. The DPP says <em>what the item is</em> (materials, sustainability — public); a VRS receipt says <em>where and when it was sold and who holds the rights</em> (private). Joined by GTIN + serial via GS1 Digital Link, they are two halves of provenance, not competitors.</td></tr>
+    <tr><td><strong>Mattereum Asset Passports</strong></td><td>An ERC-721 token plus legal warranties and arbitration, intended to make the token legally stand for the asset. Niche, high-value.</td><td>Contrast, not overlap: Mattereum engineers legal title; VRS declines that claim and externalises it. A Mattereum-style legal wrapper could sit above a VRS entitlement.</td></tr>
+  </table></div>
+
+  <h3>What VRS should align with, not reinvent</h3>
+  <ul>
+    <li><strong>Product identity</strong> — GS1 GTIN and Digital Link (it already does).</li>
+    <li><strong>Passport join</strong> — GS1 Digital Link and EPCIS events as the bridge to the manufacturer's DPP.</li>
+    <li><strong>Credential presentation</strong> — a W3C VC 2.0 / SD-JWT VC bridge, so a VRS proof can be shown in an EUDI-style wallet. (SD-JWT VC is still a draft, so this is a target to track, not yet a fixed dependency.)</li>
+    <li><strong>Fiscal</strong> — keep binding Peppol / EN 16931 / national artifacts by profile, rather than re-specifying them.</li>
+  </ul>
+  <p>The upshot: VRS competes only with the scattered attempts at a signed e-receipt, and beats them on verifiability, transfer, and privacy. Everywhere else it is complementary. The one thing it genuinely owns — the layer no existing standard provides — is the <strong>transferable, private entitlement</strong>: ownership that can move between people and be proved without a central database. That is also the least-standardised space, which is the reason to build VRS rather than try to assemble it from the others.</p>
+</section>
+
+<!-- FORWARD COMPATIBILITY -->
+<section id="forward" class="part">
+  <p class="partlabel">Forward compatibility</p>
+  <h2>Designed to leave room</h2>
+  <p>A standard you cannot extend is one you will replace. VRS freezes only the surface it must, the v1 commitment format, and pushes everything else (new fiscal regimes, signature schemes, zero-knowledge predicates) out to <strong>profiles and version boundaries</strong>. The installed base of signed receipts keeps verifying while new capability is added on top.</p>
+
+  <h3>What already keeps the door open</h3>
+  <ul>
+    <li><strong>Agility at version boundaries, not inside every receipt.</strong> One commitment scheme per major version, and every domain-separation tag is suffixed <code>:v1</code> — so a future suite gets its own namespace with no collision. The signature commits a <code>schemaHash</code>, giving each receipt an explicit version anchor.</li>
+    <li><strong>Disclosure is structural.</strong> The five sub-leaf groups let a future predicate target one group (say <code>commercial</code>) without re-opening the rest. Selective disclosure was built in, not bolted on.</li>
+    <li><strong>The bearer salt is already a proof witness.</strong> The entitlement-ID derivation was shaped so the salt doubles as a nullifier — the basis for unlinkable, prove-once predicates later, at the cost of roughly one extra in-circuit hash.</li>
+    <li><strong>Signature-scheme agility.</strong> Issuer identity lives in a manifest that <em>declares</em> its keys, and holder checks run through ERC-1271 smart accounts — so a new signature suite (including post-quantum) can arrive per-issuer without a format break. The keccak commitments are already quantum-reasonable; the signature is the only real exposure.</li>
+  </ul>
+
+  <h3>Keccak versus zero-knowledge</h3>
+  <p>VRS commits everything with <code>keccak256</code> — ideal for on-chain reconstruction, but the most expensive hash to prove <em>inside</em> a zero-knowledge circuit. Proving a Merkle path or opening a group hash in ZK is cheap only on STARK-class or lookup-based provers. This is the single choice that shapes a ZK future, so it is stated plainly rather than buried:</p>
+  <div class="callout warn"><p>Decide whether ZK predicates must work over <b>existing keccak-v1 receipts</b> (→ commit to a STARK-class prover, or recursion) or only over a <b>future commitment suite</b> (→ a SNARK-friendly hash the issuer also commits to). Both are viable; only the second is a format change, which is why the version anchor matters.</p></div>
+
+  <h3>Levers kept open</h3>
+  <p>Predicate proofs — "price &gt; X", "GTIN in this set", "spent over €1000 this year" — are a genuine expansion of what's <em>expressible</em>, and they're where today's encoding choices bite. None is needed now; each stays cheap to add later because of a decision made now:</p>
+  <div class="tablewrap"><table>
+    <tr><th>Future lever</th><th>What it unlocks</th><th>How v1 keeps it cheap</th></tr>
+    <tr><td>Predicate-friendly field encoding</td><td>Range and set-membership proofs over a single field</td><td>Numeric fields committed as integers; reserve an optional per-field layout so a predicate opens one field, not a whole group</td></tr>
+    <tr><td>SNARK-friendly mirror commitment</td><td>Proving over receipts without keccak-in-circuit</td><td>Leave room for an issuer-co-signed Poseidon root, bound into the signed header for ZK-relevant lines</td></tr>
+    <tr><td>Accumulator-shaped attester set</td><td>Proving "from an attested issuer" without verifying ECDSA in-circuit</td><td>Keep the attested-issuer roots in an on-chain accumulator, not just a flat list</td></tr>
+    <tr><td>Cross-receipt aggregation</td><td>"Owns ≥3 of brand B", spend thresholds, loyalty tiers</td><td>Keep per-item nullifiers set-aggregation compatible; allow a holder-side accumulator in <code>.vrsbox</code></td></tr>
+    <tr><td>Per-circuit domain tags</td><td>Stops a proof for one circuit being replayed as another</td><td>Reserve a ZK-statement-profile tag namespace (the same <code>:v1</code> pattern as the commitment tags)</td></tr>
+    <tr><td>Private holder &amp; transfers</td><td>Unlinkable ownership — a chain observer can't see who holds an entitlement or its resale history (see the resale privacy roadmap)</td><td>The holder is already an opaque registry slot keyed by <code>entitlementId</code>; swapping the plaintext holder address for a holder commitment + nullifier set is additive, and ERC-5564 stealth addresses need no protocol change</td></tr>
+  </table></div>
+
+  <h3>The cheap insurance worth nailing down</h3>
+  <p>Almost everything above degrades gracefully to "introduce it in a v2 suite" — <em>provided</em> every receipt is unambiguous about which commitment suite it is under, and verifiers negotiate it. That single property is essentially free to guarantee in v1 and unblocks all the rest, so it is the one forward-compatibility rule worth making airtight before the format freezes.</p>
+</section>
+
+<section id="adopt" class="part">
+  <p class="partlabel">Adoption</p>
+  <h2>How you'd adopt it</h2>
+  <p>Do not try to launch the whole network at once. Start where <strong>a single merchant and a single customer</strong> get value immediately, and add the stateful features later.</p>
+  <figure>
+    <pre class="mermaid">
+flowchart LR
+  P1["Pilot 1<br/>email receipts + expenses"] --> P2["Pilot 2<br/>wallet pass + returns"]
+  P2 --> P3["Pilot 3<br/>warranty + resale"]
+  P3 --> P4["Pilot 4<br/>manufacturer provenance"]
+    </pre>
+  </figure>
+  <p>Pilot 1 needs <strong>no wallet, no registration, no chain</strong> — just signed receipts, refs, credit notes, and expense forwarding. Lead with the <strong>verifier</strong> (accounting platforms, warranty desks, insurers, marketplaces) — they already suffer from unverifiable receipts.</p>
+  <p>A first implementation is small:</p>
+  <ul>
+    <li><strong>Issuer / ref service:</strong> sign <code>.receipt</code>, generate bearer secrets separately, expose <code>vrs1:ref</code> and one-time <code>vrs1:claim</code>, serve a credit graph, support <code>.vrsbox</code> export — and never leak secrets through refs.</li>
+    <li><strong>Holder agent:</strong> import <code>.receipt</code> / <code>vrs1:claim</code> / <code>.vrsbox</code>, preserve the document/secret split, register valuables only when useful, sign holder challenges, and show holder-vs-legal-title caveats.</li>
+    <li><strong>Verifier:</strong> verify signature and root, check selective proof paths, reject bearer secrets in desk flows, read canonical registry state where needed, and verify credit documents independently.</li>
+  </ul>
+</section>
+
+<footer>
+  <p><strong>Where to go next</strong></p>
+  <ul>
+    <li>Normative specification — <a href="02-vrs-specification.html">VRS Specification 1.0</a></li>
+    <li>Document JSON schemas — <a href="03-vrs-data-formats.html">VRS Data Formats</a></li>
+    <li>Byte-exact test fixtures — <a href="04-vrs-conformance-vectors.html">VRS Conformance Vectors</a></li>
+    <li>Reference formal-spec draft — <code>Reference/10-formal-specification/vrs-formal-specification.md</code></li>
+    <li>Implementation guidance — <code>Reference/20-design-implementation/vrs-design-implementation-guide.md</code></li>
+    <li>Readable overview — <code>Reference/30-readable-overview/vrs-readable-overview.md</code></li>
+    <li>Executable scenario — <code>Reference/40-executable-reference/</code></li>
+    <li>Concept deck — <code>Reference/50-presentations/</code></li>
+  </ul>
+</footer>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const font = 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+
+  const light = {
+    background: '#ffffff',
+    primaryColor: '#EEEDFE', primaryBorderColor: '#534AB7', primaryTextColor: '#2c2c2a',
+    secondaryColor: '#E1F5EE', secondaryBorderColor: '#0F6E56', secondaryTextColor: '#085041',
+    tertiaryColor: '#E6F1FB', tertiaryBorderColor: '#185FA5', tertiaryTextColor: '#0C447C',
+    lineColor: '#5f5e5a', textColor: '#2c2c2a', fontFamily: font, fontSize: '14px',
+    // sequence
+    actorBkg: '#EEEDFE', actorBorder: '#534AB7', actorTextColor: '#3C3489', actorLineColor: '#888780',
+    signalColor: '#5f5e5a', signalTextColor: '#2c2c2a',
+    labelBoxBkgColor: '#E6F1FB', labelBoxBorderColor: '#185FA5', labelTextColor: '#0C447C',
+    loopTextColor: '#2c2c2a',
+    noteBkgColor: '#FAEEDA', noteBorderColor: '#854F0B', noteTextColor: '#633806',
+    activationBkgColor: '#E1F5EE', activationBorderColor: '#0F6E56'
+  };
+  const darkV = {
+    background: '#30302e',
+    primaryColor: '#3C3489', primaryBorderColor: '#AFA9EC', primaryTextColor: '#e8e6dd',
+    secondaryColor: '#085041', secondaryBorderColor: '#5DCAA5', secondaryTextColor: '#9FE1CB',
+    tertiaryColor: '#0C447C', tertiaryBorderColor: '#85B7EB', tertiaryTextColor: '#B5D4F4',
+    lineColor: '#b4b2a9', textColor: '#e8e6dd', fontFamily: font, fontSize: '14px',
+    actorBkg: '#3C3489', actorBorder: '#AFA9EC', actorTextColor: '#CECBF6', actorLineColor: '#888780',
+    signalColor: '#b4b2a9', signalTextColor: '#e8e6dd',
+    labelBoxBkgColor: '#0C447C', labelBoxBorderColor: '#85B7EB', labelTextColor: '#B5D4F4',
+    loopTextColor: '#e8e6dd',
+    noteBkgColor: '#633806', noteBorderColor: '#EF9F27', noteTextColor: '#FAC775',
+    activationBkgColor: '#085041', activationBorderColor: '#5DCAA5'
+  };
+
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: dark ? darkV : light,
+    flowchart: { htmlLabels: true, curve: 'basis', useMaxWidth: true },
+    sequence: { useMaxWidth: true, mirrorActors: false }
+  });
+</script>
+<script>
+  // Smooth in-page navigation. Native hash-fragment scrolling can be a no-op
+  // inside embedded preview panels/iframes, so drive it explicitly.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    var y = target.getBoundingClientRect().top + window.scrollY - 16;
+    // Direct instant scroll: reliable across browsers and embedded preview
+    // panels (smooth-behavior and rAF-driven animation are unreliable there).
+    window.scrollTo(0, y);
+    if (history.replaceState) history.replaceState(null, '', '#' + id);
+  });
+</script>
+<script>
+  // ── Use-case data walkthroughs ───────────────────────────────────────────
+  // Values reuse the worked-example apples+toaster receipt where they are exact
+  // (receiptRoot, saltCommit, entitlementId, Merkle paths). Addresses and
+  // ECDSA signatures are illustrative placeholders — see the worked example for the
+  // byte-exact derivation.
+  var ADDR = {
+    issuer:   "0x00000000000000000000000000000000000000A1",
+    holder:   "0x3333333333333333333333333333333333333333",
+    buyer:    "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    service:  "0x6666666666666666666666666666666666666666",
+    mfr:      "0x5555555555555555555555555555555555555555",
+    distrib:  "0x9999999999999999999999999999999999999999",
+    attester: "0x7777777777777777777777777777777777777777",
+    registry: "0x000000000000000000000000000000000000c0DE"
+  };
+  var H = {
+    receiptRoot: "0x4881046b77385af41d3b87e28fdfc1539e390956eba11046f44d5397ff8338e9",
+    schemaHash:  "0xe18b2d7e5b1a7d88d3e0f0c05ba5cb54c52290be82766537a0480bee6c456993",
+    sc0:  "0x39c8c9fee863d4cb86c9440505660b5a8f3168c2333cd0b54b22e6d572a4e352",
+    sc1:  "0xf305f1fa6acdc6447fd91957d44133a768a40a15ec7668a31e247851deb491a1",
+    salt0:"0x63968191ce601b875cf1255410336c015731dd795bd34bdb4e56f5a633ec939f",
+    salt1:"0x1aef9141b419aa03af6f5331cd870c33c18e13183a9b7113d51dff93f58c9759",
+    entId:"0x47cc2d0c6e409c69d9f52be15af626038008bce8f57e6b83cec5c1f5b8cb979d",
+    batchId:"0x33bdafc4fb2e72e30a329411a1f8fc1a4beeb4b4a6cfc22fc9914961ab29679f",
+    serialSaltCommit:"0x8b8bb26dda52dc0b732097526c876b03529e4b361882a0441060a6ac6049a54a",
+    fiscalHash:"0x8c58af25d19af53f6139ce81f683c35fa8e839c491824ab75628ca508180498a",
+    commHash:"0x7bfebb74ddbd0fbf527074a0f2cec9e75a6cb5258226a35d8ae3c9de6b64739d",
+    warrHash:"0x753fda7cb4f5a47bdc8c4bfcdb95f7b755a04ce1cf713bb564dbf6d9faae0961",
+    descHash:"0x4259954ceb3963fd57c5c330995802f25cfdc903e8396266c453534dbb826364",
+    provHash:"0xb2dbb672fb771a06a08d30772d621efa377a67609d1542a32e72ef9ebbf61c33",
+    item0:"0xcb865da923773d20c73b4ddf5fafb4f5c2eecb32aacb09fa81743fb7f6ccc192",
+    n01:"0x6bcbb924a70cd644b98692e95099e3c14b317f09af7c42493527aa3666f06158",
+    n23:"0x472d9d4799022fdad3c1dbf8da803ed1598ebb4a87c8a4af188a33c4b24e3f3d",
+    pad:"0xb6dcc3947334a44996999477a127b82b89d54c2f16497a503bb6d9616fde8458",
+    digest:"0xd07093789d5cccf67614603bd751ab8c5006b093a6e67a91823bde9430ab9dc0",
+    attHash:"0x7d1c5a0b2e9f48c6a1d3b7e05f9c2a814d6b30fe71c98a25430d6f1eb8c40927",
+    nullifier:"0x2b9e7c41a8f0d36b5e0a9c83d27f146a90be35c1d8470f29a6b3ce1184d20f57"
+  };
+  var SIG = "0x<65-byte ECDSA over the EIP-712 digest 0xd07093…ab9dc0>";
+  var SCOPE = { doc:"Document", secret:"Bearer secret", proof:"Proof", chain:"Chain state", service:"Service", policy:"Policy" };
+
+  var WALK = {
+    issuance: [
+      { scope:"doc", title:"Signed receipt document (.receipt)",
+        desc:"The merchant signs the receipt root. This is the apples + toaster receipt from the worked example.",
+        example:{ schema:"vrs/receipt/1.0", receiptType:"sale", receiptId:"order-100045",
+          issuer:{address:ADDR.issuer}, issuedAt:"1790000000", delegation:null,
+          lineItems:[
+            { core:{productId:"txt:Apples, loose", qtyMilli:"535", saltCommit:H.sc0},
+              commercial:{unitPriceMinor:"299", taxRateBps:"700", currency:"EUR"}, warranty:null, provenance:null },
+            { core:{productId:"(01)09506000134352(21)SER1234", qtyMilli:"1000", saltCommit:H.sc1},
+              commercial:{unitPriceMinor:"4999", taxRateBps:"1900", currency:"EUR"},
+              warranty:{warrantor:"gln:4012345000009", durationDays:"730", termsHash:"0x…"},
+              provenance:{batchId:H.batchId, serialSaltCommit:H.serialSaltCommit} }
+          ],
+          receiptRoot:H.receiptRoot, schemaHash:H.schemaHash,
+          signature:{signer:ADDR.issuer, signedDigest:H.digest, signature:SIG} },
+        template:{ schema:"vrs/receipt/1.0", receiptType:"sale|delivery|service|credit",
+          issuer:{address:"0x<issuer-or-delegate-key>"}, issuedAt:"<unix-seconds>",
+          delegation:"<null | DelegationCert(operationalKey, role, validFrom, validUntil, rootSig)>",
+          lineItems:["<core (+ optional commercial, warranty, descriptive, provenance) per line>"],
+          receiptRoot:"0x<merkle-root>", schemaHash:"0x<keccak256(schema)>",
+          signature:{signer:"0x<key>", signedDigest:"0x<EIP-712 digest>", signature:"0x<65-byte sig>"} } },
+      { scope:"secret", title:"Bearer secrets payload (kept separate)",
+        desc:"Salts travel apart from the document. In the receipt, saltCommit = keccak256(abi.encode(T_SC, salt)).",
+        example:{ schema:"vrs/secrets/1.0", receiptId:"order-100045",
+          secrets:[ {lineIndex:"0", salt:H.salt0}, {lineIndex:"1", salt:H.salt1} ] },
+        template:{ schema:"vrs/secrets/1.0", receiptId:"<receipt-id>",
+          secrets:[ {lineIndex:"<i>", salt:"0x<32-byte bearer secret>"} ] } },
+      { scope:"service", title:"Channel payloads (what lands in the inbox)",
+        desc:"vrs1:ref is powerless and shareable; vrs1:claim carries bearer authority and is redeemed once.",
+        example:"email attachment : order-100045.receipt        (signed document, no secrets)\nemail QR / link  : vrs1:ref:https://receipts.example/ref/r_abc\nclaim button     : vrs1:claim:https://receipts.example/claim/c_abc#token" }
+    ],
+    expense: [
+      { scope:"proof", title:"Line proof — toaster line, core + commercial",
+        desc:"Employee expenses only line 1. Header + one line, with the real Merkle paths from the worked example. Other lines' prices and all bearer salts stay hidden.",
+        example:{ schema:"vrs/proof/1.0", disclosure:"core+commercial (line 1)",
+          header:{issuer:ADDR.issuer, issuedAt:"1790000000", receiptType:"sale", fiscalHash:H.fiscalHash,
+            delegationHash:"ABSENT", issuerSig:SIG, headerPath:[H.item0, H.n23]},
+          line:{lineIndex:"1", core:{productId:"(01)09506000134352(21)SER1234", qtyMilli:"1000", saltCommit:H.sc1},
+            commercial:{unitPriceMinor:"4999", taxRateBps:"1900", currency:"EUR"},
+            warrantyHash:H.warrHash, descriptiveHash:H.descHash, provenanceHash:H.provHash, itemPath:[H.pad, H.n01]},
+          receiptRoot:H.receiptRoot },
+        template:{ schema:"vrs/proof/1.0", disclosure:"<full | core | core+commercial | core+warranty | …>",
+          header:{issuer:"0x<key>", issuedAt:"<unix>", receiptType:"<type>", fiscalHash:"0x<… | ABSENT>",
+            delegationHash:"0x<… | ABSENT>", issuerSig:"0x<sig>", headerPath:["0x<sibling>", "…"]},
+          line:{lineIndex:"<i>", core:"<disclosed core>", commercial:"<optional>",
+            warrantyHash:"0x<… | ABSENT>", descriptiveHash:"0x<… | ABSENT>", provenanceHash:"0x<… | ABSENT>",
+            itemPath:["0x<sibling>", "…"]},
+          receiptRoot:"0x<root>" } },
+      { scope:"policy", title:"Employer ingest decision (no chain)",
+        desc:"The verifier recomputes the leaf, checks the signature against its attester policy, and dedups on (receiptRoot, lineIndex). No chain read required.",
+        example:{ verifier:"accounting-platform",
+          checks:{signature:"pass", merklePath:"pass", issuerAttested:"pass (fiscal attester 0x7777…)"},
+          dedupeKey:[H.receiptRoot, "1"], result:"accepted", amountMinor:"4999",
+          note:"line 0 (apples) title and price never disclosed" } }
+    ],
+    "return": [
+      { scope:"doc", title:"Credit document (signed)",
+        desc:"A return is a new signed receipt of type credit that references the origin root. Credit lines derive no entitlement.",
+        example:{ schema:"vrs/receipt/1.0", receiptType:"credit", receiptId:"credit-200007",
+          issuer:{address:ADDR.issuer}, issuedAt:"1790100000",
+          headerExtensions:{"vrs.credit":{originRoot:H.receiptRoot, originReceiptId:"order-100045"}},
+          lineItems:[ { core:{productId:"(01)09506000134352(21)SER1234", qtyMilli:"1000", saltCommit:"CREDIT_SENTINEL"},
+            descriptive:{title:"Returned toaster", lineExtensions:{"vrs.credit":{originLineIndex:"1",
+              creditedQtyMilli:"1000", creditedAmountMinor:"4999", reason:"return"}}} } ],
+          signature:{signer:ADDR.issuer, signature:SIG} },
+        template:{ schema:"vrs/receipt/1.0", receiptType:"credit", issuer:{address:"0x<issuer>"}, issuedAt:"<unix>",
+          headerExtensions:{"vrs.credit":{originRoot:"0x<origin-receipt-root>", originReceiptId:"<id>"}},
+          lineItems:[ {core:{productId:"<id>", qtyMilli:"<q>", saltCommit:"CREDIT_SENTINEL"},
+            descriptive:{lineExtensions:{"vrs.credit":{originLineIndex:"<i>", creditedQtyMilli:"<q>",
+              creditedAmountMinor:"<amt>", reason:"return|price-adjustment|tax-correction|goodwill"}}}} ],
+          signature:{signer:"0x<issuer>", signature:"0x<sig>"} } },
+      { scope:"service", title:"Credit graph (served beside the receipt)",
+        desc:"Discovery of credits linked to an origin receipt. Must declare completeness; verifiers still verify each credit document and cap over-crediting.",
+        example:{ schema:"vrs/credit-graph/1.0", originRoot:H.receiptRoot, completeness:"complete",
+          credits:[ {receiptId:"credit-200007", originLineIndex:"1", creditedAmountMinor:"4999", reason:"return",
+            documentRef:"vrs1:ref:https://receipts.example/ref/credit-200007"} ] },
+        template:{ schema:"vrs/credit-graph/1.0", originRoot:"0x<root>",
+          completeness:"complete|partial|paginated|unavailable|account-gated|retention-expired",
+          credits:[ {receiptId:"<id>", originLineIndex:"<i>", creditedAmountMinor:"<amt>", reason:"<reason>",
+            documentRef:"<vrs1:ref | doc>"} ] } }
+    ],
+    warranty: [
+      { scope:"proof", title:"Warranty presentation + holder challenge",
+        desc:"core + warranty disclosed (no price). For a registered item the holder also signs a fresh challenge proving they control the entitlement.",
+        example:{ schema:"vrs/presentation/warranty/1.0",
+          proof:{disclosure:"core+warranty", lineIndex:"1", groups:["core","warranty"]},
+          holderChallenge:{entitlementId:H.entId, nonce:"0x9f2c4a…", audience:"warranty", expiresAt:"1790200300",
+            holderSig:"0x<holder EOA / ERC-1271 signature>"},
+          registryRead:{status:"Active", holder:ADDR.holder} },
+        template:{ schema:"vrs/presentation/warranty/1.0",
+          proof:{disclosure:"core+warranty", lineIndex:"<i>", groups:["core","warranty"]},
+          holderChallenge:{entitlementId:"0x<entId>", nonce:"0x<nonce>", audience:"<audience>", expiresAt:"<unix>",
+            holderSig:"0x<holder-sig>"},
+          registryRead:{status:"Active|Returned|Voided|Stolen", holder:"0x<holderOf>"} } },
+      { scope:"chain", title:"Registry read — status & holder",
+        desc:"The desk reads shared state to confirm Active and that the challenger is the current holder.",
+        example:{ chainId:"8453", registry:ADDR.registry,
+          reads:{"statusOf(entId)":"Active", "holderOf(entId)":ADDR.holder, "firstHolderOf(entId)":ADDR.holder} },
+        ethereum:"// view calls — no gas\nstatusOf(0x47cc2d0c…b8cb979d)      -> 1 (Active)\nholderOf(0x47cc2d0c…b8cb979d)      -> 0x3333…3333\nfirstHolderOf(0x47cc2d0c…b8cb979d) -> 0x3333…3333" },
+      { scope:"policy", title:"Warranty desk decision",
+        desc:"Approval is the desk's policy output, not a VRS core fact.",
+        example:{ decision:"approve", reason:"within-730-day-warranty", entitlementId:H.entId,
+          ageDays:"410", maxWarrantyDays:"730",
+          checks:{receiptProof:"pass", holderChallenge:"pass", registryStatus:"Active"} } }
+    ],
+    resale: [
+      { scope:"proof", title:"Resale bundle (selective disclosure)",
+        desc:"Seller reveals the receipt proof and chosen lifecycle docs, omitting the bearer salt and private service detail. The item is already registered.",
+        example:{ schema:"vrs/presentation/resale/1.0",
+          receiptProof:{lineIndex:"1", groups:["core","warranty","descriptive"]},
+          registryState:{entitlementId:H.entId, status:"Active", holder:ADDR.holder, firstHolder:ADDR.holder},
+          lifecycle:[ {attestationHash:H.attHash, eventType:"service", issuedAt:"1790200000"} ],
+          transferAuth:{entitlementId:H.entId, to:ADDR.buyer, deadline:"1790300000", holderSig:"0x<seller sig>"} },
+        template:{ schema:"vrs/presentation/resale/1.0",
+          receiptProof:{lineIndex:"<i>", groups:["core","…"]},
+          registryState:{entitlementId:"0x<entId>", status:"Active", holder:"0x<seller>", firstHolder:"0x<first>"},
+          lifecycle:["<selected attestations>"],
+          transferAuth:{entitlementId:"0x<entId>", to:"0x<buyer>", deadline:"<unix>", holderSig:"0x<seller-sig>"} } },
+      { scope:"chain", title:"transferWithAuth (atomic with payment)",
+        desc:"The marketplace submits the holder-authorised transfer to the buyer.",
+        example:{ chainId:"8453", registry:ADDR.registry, action:"transferWithAuth", entitlementId:H.entId, to:ADDR.buyer,
+          transferAuth:{from:ADDR.holder, to:ADDR.buyer, nonce:"0", deadline:"1790300000", holderSig:"0x<holder-sig>"} },
+        template:{ chainId:"<eip155>", registry:"0x<canonical>", action:"transferWithAuth", entitlementId:"0x<entId>",
+          to:"0x<buyer>", transferAuth:{from:"0x<holder>", to:"0x<buyer>", nonce:"<n>", deadline:"<unix>", holderSig:"0x<sig>"} },
+        ethereum:"EntitlementRegistry.transferWithAuth(\n  0x47cc2d0c…b8cb979d,   // entitlementId\n  0xbbbb…bbbb,            // to (buyer)\n  1790300000,             // deadline\n  0x<holderSig>           // EIP-712 / ERC-1271 auth from current holder\n)" },
+      { scope:"chain", title:"Registry after resale",
+        desc:"holderOf moves to the buyer; firstHolder stays frozen; service history remains attached.",
+        example:{ entitlements:{ "0x47cc2d0c…(entId)":{holder:ADDR.buyer, firstHolder:ADDR.holder, status:"Active",
+          lifecycleEvents:[H.attHash]} } },
+        ethereum:"holderOf(0x47cc2d0c…)      -> 0xbbbb…bbbb  (buyer)\nfirstHolderOf(0x47cc2d0c…) -> 0x3333…3333  (unchanged)\nstatusOf(0x47cc2d0c…)      -> 1 (Active)" }
+    ],
+    lifecycle: [
+      { scope:"doc", title:"Lifecycle attestation (signed, off-chain)",
+        desc:"A repairer signs a service record. Only its hash goes on-chain; the document itself stays private.",
+        example:{ schema:"vrs/lifecycle-attestation/1.0", entitlementId:H.entId, eventType:"service",
+          issuer:ADDR.service, issuedAt:"1790200000", summaryHash:"0xeeee…",
+          attachments:[ {type:"service-report", hash:"0x4f8a…"} ], attestationHash:H.attHash, signature:"0x<service sig>" },
+        template:{ schema:"vrs/lifecycle-attestation/1.0", entitlementId:"0x<entId>",
+          eventType:"service|repair|inspection|owner-note|recall", issuer:"0x<attester>", issuedAt:"<unix>",
+          summaryHash:"0x<hash>", attachments:[ {type:"<type>", hash:"0x<hash>"} ],
+          attestationHash:"0x<keccak256(JCS(attestation))>", signature:"0x<sig>" } },
+      { scope:"chain", title:"recordEvent — only the hash",
+        desc:"The chain stores attestationHash bound to the entitlement, and never the notes, photos, or location.",
+        example:{ chainId:"8453", registry:ADDR.registry, action:"recordEvent", entitlementId:H.entId,
+          attestationHash:H.attHash, caller:ADDR.holder },
+        template:{ chainId:"<eip155>", registry:"0x<canonical>", action:"recordEvent", entitlementId:"0x<entId>",
+          attestationHash:"0x<hash>", caller:"0x<holder-or-authorised-agent>" },
+        ethereum:"EntitlementRegistry.recordEvent(\n  0x47cc2d0c…b8cb979d,   // entitlementId\n  0x7d1c5a…40927          // attestationHash = keccak256(JCS(attestation))\n)" }
+    ],
+    manufacturer: [
+      { scope:"secret", title:"Provenance group + serial secret",
+        desc:"The endorsed line carries a provenance group; the serial salt is a bearer secret in the secrets payload.",
+        example:{ provenance:{batchId:H.batchId, serialSaltCommit:H.serialSaltCommit},
+          serialSecret:{batchId:H.batchId, serial:"SER1234", serialSalt:"0x<32-byte bearer secret>"} },
+        template:{ provenance:{batchId:"0x<batch>", serialSaltCommit:"0x<keccak256(abi.encode(T_SC, serialSalt))>"},
+          serialSecret:{batchId:"0x<batch>", serial:"<serial>", serialSalt:"0x<bearer secret>"} } },
+      { scope:"service", title:"Grant chain (authorised channel)",
+        desc:"Off-chain signed grants link the manufacturer to the receipt issuer: channel assurance, not physical proof.",
+        example:{ schema:"vrs/grant-chain/1.0", grants:[
+          {batchId:H.batchId, grantor:ADDR.mfr, grantee:ADDR.distrib, quantity:"100", parentGrant:"0x00…00",
+            validUntil:"1799900000", signature:"0x<manufacturer sig>"},
+          {batchId:H.batchId, grantor:ADDR.distrib, grantee:ADDR.issuer, quantity:"10", parentGrant:"0xefef…",
+            validUntil:"1799900000", signature:"0x<distributor sig>"} ] },
+        template:{ schema:"vrs/grant-chain/1.0", grants:[
+          {batchId:"0x<batch>", grantor:"0x<grantor>", grantee:"0x<grantee>", quantity:"<n>",
+            parentGrant:"0x<parent | 0x00…00>", validUntil:"<unix>", signature:"0x<sig>"} ] } },
+      { scope:"chain", title:"authenticate — nullifier set once",
+        desc:"Revealing the serial salt sets the serial nullifier exactly once; a second use of the same serial reverts (cloned-serial detection).",
+        example:{ chainId:"8453", registry:"0x<MintAllowanceRegistry>", action:"authenticate", batchId:H.batchId,
+          serial:"SER1234", result:{serialInRoot:"pass", nullifier:H.nullifier, nullifierWasUnset:true} },
+        ethereum:"MintAllowanceRegistry.authenticate(batchId, serial, serialSalt, proof)\n// reverts if the serial nullifier is already set\nnullifierUsed(0x2b9e7c…) -> true   (now consumed)" }
+    ],
+    consumption: [
+      { scope:"proof", title:"Submitted line proof (core only)",
+        desc:"The holder submits HeaderDisclosure + CoreDisclosure to the consuming contract. Core only: what was bought, never the price.",
+        example:{ HeaderDisclosure:{issuer:ADDR.issuer, issuedAt:"1790000000", receiptType:"0", fiscalHash:H.fiscalHash,
+            issuerSig:SIG, headerPath:[H.item0, H.n23], rootIdentity:"0x00…00 (undelegated)"},
+          CoreDisclosure:{lineIndex:"1", productId:"(01)09506000134352(21)SER1234", qtyMilli:"1000", saltCommit:H.sc1,
+            commercialHash:H.commHash, warrantyHash:H.warrHash, descriptiveHash:H.descHash, provenanceHash:H.provHash,
+            itemPath:[H.pad, H.n01]} },
+        template:{ HeaderDisclosure:{issuer:"0x<key>", issuedAt:"<unix>", receiptType:"<0-3>", fiscalHash:"0x<…>",
+            issuerSig:"0x<sig>", headerPath:["0x<sibling>"], rootIdentity:"0x<root | 0x00…00>"},
+          CoreDisclosure:{lineIndex:"<i>", productId:"<id>", qtyMilli:"<q>", saltCommit:"0x<sc>",
+            commercialHash:"0x<…>", warrantyHash:"0x<… | ABSENT>", descriptiveHash:"0x<… | ABSENT>",
+            provenanceHash:"0x<… | ABSENT>", itemPath:["0x<sibling>"]} } },
+      { scope:"chain", title:"verifyLineItem → claim()",
+        desc:"The stateless verifier returns entitlementId + productId hash + issuer; the reward contract gates on holder, status, and once-per-item.",
+        example:{ verifyLineItem:{returns:{entitlementId:H.entId, productIdHash:"0x2f55…", identity:ADDR.issuer,
+            issuedAt:"1790000000"}},
+          claim:{caller:ADDR.holder, checks:{rateFor_productIdHash:"50 pts", authorisedRetailer:"pass",
+            "holderOf == caller":"pass", statusOf:"Active", "claimed[entId]":"false → true"}, award:"50 pts"} },
+        ethereum:"ReceiptVerifier.verifyLineItem(h, c, 0x00, 0, [])\n  -> (entId 0x47cc2d0c…, productIdHash 0x2f55…, issuer 0x…00A1, issuedAt, anchoredTime)\n\nRewardDistributor.claim(h, c)\n  require(holderOf(entId) == msg.sender)\n  require(statusOf(entId) == Active)\n  require(!claimed[entId]);  claimed[entId] = true;   // ★ once per item" },
+      { scope:"policy", title:"Reward granted (contract event)",
+        desc:"The consuming contract's own outcome: composable, permissionless, no merchant call at claim time.",
+        example:{ event:"Claimed", entitlementId:H.entId, holder:ADDR.holder, productIdHash:"0x2f55…",
+          pointsAwarded:"50" } }
+    ],
+    recall: [
+      { scope:"doc", title:"Recall notice — signed, keyed on the batch",
+        desc:"A signed document keyed on the manufacturing batchId, not on any entitlement or holder. It names no owner.",
+        example:{ schema:"vrs/recall-notice/1.0", recallId:"recall-7", issuer:{address:ADDR.mfr},
+          batchId:H.batchId, scope:"batch", productClass:"ACME Toaster", severity:"safety", action:"stop-use",
+          remedyHash:"0x9c3f1d…", remedyURI:"https://acme.example/recall/7", issuedAt:"1790500000",
+          signature:"0x<manufacturer sig>" },
+        template:{ schema:"vrs/recall-notice/1.0", recallId:"<id>", issuer:{address:"0x<manufacturer/authority root>"},
+          batchId:"0x<batchId>", scope:"batch | serial-range | serial-list", productClass:"<label / GTIN class>",
+          severity:"safety | advisory | informational", action:"stop-use | return | repair | update",
+          remedyHash:"0x<keccak256(JCS(remedy))>", remedyURI:"<pointer>", issuedAt:"<unix>", signature:"0x<sig>" } },
+      { scope:"chain", title:"Anchor the notice, keyed on batchId",
+        desc:"The notice hash is anchored for proven time under its batch: censorship-resistant, ordered, and discoverable by the batches a wallet holds.",
+        example:{ chainId:"8453", registry:"0x<NoticeRegistry>", action:"recall", batchId:H.batchId,
+          noticeHash:"0xa17e4b…", severity:"safety", issuerRoot:ADDR.mfr },
+        template:{ chainId:"<eip155>", registry:"0x<canonical>", action:"recall", batchId:"0x<batchId>",
+          noticeHash:"0x<keccak256(JCS(notice))>", severity:"<0-2>", issuerRoot:"0x<attested for batch>" },
+        ethereum:"NoticeRegistry.recall(\n  0x33bdafc4…ab29679f,   // batchId (indexed topic)\n  0xa17e4b…,              // noticeHash\n  1                       // severity: safety\n)\nemits Recalled(batchId, noticeHash, issuerRoot, severity)" },
+      { scope:"service", title:"Holder wallet matches locally",
+        desc:"The wallet watches recalls for the batchIds it holds and surfaces any match, entirely client-side, with no identity sent to the manufacturer.",
+        example:{ watch:"Recalled(batchId) for held batches", heldBatches:[H.batchId], matched:H.batchId,
+          identityDisclosed:false, surfaced:{ severity:"safety", action:"stop-use", remedyURI:"https://acme.example/recall/7" } } }
+    ]
+  };
+
+  // Per-artifact standard & implementation notes (parallel to WALK, by index).
+  var NOTES = {
+    issuance: [
+      [ "Signature covers only <code>(receiptRoot, schemaHash)</code> via EIP-712; the domain omits chainId and verifyingContract, so the document is <b>chain-agnostic</b> <span class='ref'>(spec §4, §5.6)</span>.",
+        "Absent optional groups (warranty/provenance on the apples line) commit the <code>ABSENT</code> sentinel, never zero — see the five-group leaf in <span class='ref'>§5.3</span>.",
+        "<code>delegation:null</code> means the issuer root signed directly. A delegate (POS/ecommerce) key instead commits a <code>delegationHash</code> binding <code>(root, role, window)</code>; a key delegated for <code>merchant</code> MUST NOT be accepted as <code>manufacturer</code> <span class='ref'>(§5.6)</span>.",
+        "v1 freezes the commitment tags and caps the tree at depth 16 (≤ 65 535 line items) <span class='ref'>(§5.4)</span>." ],
+      [ "Bearer secrets MUST NOT appear in the document, <code>vrs1:ref</code>, or ordinary proofs <span class='ref'>(§4, §8)</span>. <code>saltCommit = keccak256(abi.encode(T_SC, salt))</code>.",
+        "A proof carries only <code>saltCommit</code>, so a proof-holder can't register or claim — registration needs the salt preimage <span class='ref'>(§11.1)</span>.",
+        "Serial salts for endorsed lines travel in this same payload through the supply chain." ],
+      [ "<code>vrs1:ref</code> is powerless; <code>GET /ref/{id}</code> returns a <code>vrs/ref-response/1.0</code> with the document and credit graph, <b>never secrets</b> <span class='ref'>(§7.2)</span>.",
+        "<code>vrs1:claim</code> is redeemed once: the service MUST mark the token consumed <i>before</i> returning secrets <span class='ref'>(§7.3)</span>.",
+        "Ref endpoints SHOULD use private cache headers and minimise logging <span class='ref'>(§17)</span>." ]
+    ],
+    expense: [
+      [ "A <code>core</code> disclosure level: the header plus the selected line's <code>core</code> group. (Disclosure levels are <code>full</code> / <code>core</code> / <code>core+&lt;group&gt;</code> / <code>zk</code> — nothing to do with Ethereum layers.)",
+        "The verifier rebuilds the item leaf from the disclosed <code>core</code> plus the four group hashes, folds <code>itemPath</code> to <code>receiptRoot</code>, then checks the signature — one <code>ecrecover</code> + ~log(n) keccaks <span class='ref'>(VRSLib.verify)</span>.",
+        "<code>headerPath</code> and <code>itemPath</code> here are the real siblings from the worked example (leaf indices 0 and 2).",
+        "<code>saltCommit</code> is disclosed, the salt is not — so a proof confers no entitlement control <span class='ref'>(§6.1)</span>." ],
+      [ "Not a VRS object — verifier policy output. Dedup MUST key on <code>(receiptRoot, lineIndex)</code> to stop double-expensing.",
+        "Expenses need no chain; a stricter verifier also reads the credit graph and any fiscal-evidence status <span class='ref'>(§9.4)</span>.",
+        "“Issuer attested” means the signature verified <b>and</b> the verifier's policy accepts that root/delegate for the role — a bare signature only says “a key signed” <span class='ref'>(§5.6)</span>." ]
+    ],
+    "return": [
+      [ "A credit is a full signed receipt of <code>receiptType: credit</code>. Corrections MUST be new signed documents — never edits to the original <span class='ref'>(§9.4 immutability)</span>.",
+        "MUST reference the origin via <code>headerExtensions[\"vrs.credit\"].originRoot</code>; per line: origin index, credited qty/amount, reason <span class='ref'>(§9.1)</span>.",
+        "Credit lines derive no entitlement — the <code>saltCommit</code> is a sentinel." ],
+      [ "<code>vrs/credit-graph/1.0</code> is discovery only, <b>not trusted for truth</b>; verifiers MUST verify each credit document and reject over-crediting <span class='ref'>(§9.2–9.3)</span>.",
+        "MUST distinguish <code>complete / partial / paginated / unavailable / account-gated / retention-expired</code> — a service MUST NOT silently drop old credits while claiming completeness <span class='ref'>(§9.3)</span>.",
+        "Fiscal cancellation/correction is a <b>separate ledger</b> from VRS credits and from entitlement status — three distinct ledgers <span class='ref'>(§9.4)</span>." ]
+    ],
+    warranty: [
+      [ "Warranty terms sit in their own sub-leaf, so <code>core+warranty</code> proves the claim without revealing price <span class='ref'>(§5.3)</span>.",
+        "For a <b>registered</b> item a receipt proof alone is insufficient — the verifier MUST require a holder challenge signed by the current registered holder <span class='ref'>(§6.2)</span>.",
+        "The challenge SHOULD carry nonce + audience + expiry; the holder signature is EOA or ERC-1271 (smart account)." ],
+      [ "Read only against the <b>canonical</b> deployment; noncanonical registry state MUST NOT be treated as VRS state — verify the deployment manifest <span class='ref'>(§10)</span>.",
+        "<code>statusOf</code> / <code>holderOf</code> / <code>firstHolderOf</code> are view calls — no gas.",
+        "<code>firstHolder</code> is set once and never changes through transfer, recovery, or resale <span class='ref'>(§11.1)</span>." ],
+      [ "Policy output, not a VRS fact. “Within warranty” = <code>issuedAt + durationDays &gt; now</code>, evaluated by the warrantor.",
+        "VRS proves the receipt and holdership; it does not <b>enforce</b> the warranty or attest physical condition." ]
+    ],
+    resale: [
+      [ "Selective disclosure: the seller chooses groups and MUST omit the bearer salt. Lifecycle access does not transfer automatically with the entitlement — the seller must also hand over the data package <span class='ref'>(§12)</span>.",
+        "<code>registryState</code> here is a read; the buyer must still challenge the live holder key (next step)." ],
+      [ "<code>transferWithAuth</code> lets a third party (marketplace) submit a holder-signed authorisation atomically with payment <span class='ref'>(§11)</span>.",
+        "<code>holderSig</code> is EIP-712 / ERC-1271 and binds <code>entitlementId, to, deadline</code> (and nonce) to prevent replay.",
+        "A holder can also call <code>transfer()</code> directly." ],
+      [ "<code>holderOf</code> moves to the buyer; <code>firstHolder</code> stays frozen as a provenance anchor; lifecycle events remain attached <span class='ref'>(§11.1)</span>.",
+        "<code>status</code> (Active/Returned/Voided/Stolen) is VRS entitlement state — <b>not legal title</b> <span class='ref'>(§11.1)</span>." ]
+    ],
+    lifecycle: [
+      [ "<code>vrs/lifecycle-attestation/1.0</code>: shared envelope + typed body + signature + optional attachment hashes <span class='ref'>(§12)</span>.",
+        "<code>attestationHash = keccak256(JCS(attestation))</code> — only this hash is anchored.",
+        "Provenance-grade events SHOULD carry <b>proven time</b> (anchoring); signatures alone can be backdated." ],
+      [ "The chain stores only the hash bound to the entitlement — MUST NOT store notes, photos, locations, or addresses <span class='ref'>(§12, §17)</span>.",
+        "Logging order plus anchoring gives tamper-evident, backdate-resistant history; unlogged events stay invisible, so the claim is “tamper-evident, not complete”." ]
+    ],
+    manufacturer: [
+      [ "The <code>provenance</code> group <code>{batchId, serialSaltCommit}</code> is per-line and <code>ABSENT</code> for unendorsed lines <span class='ref'>(§5.3)</span>.",
+        "<code>serialSaltCommit = keccak256(abi.encode(T_SC, serialSalt))</code>; the serial salt is a bearer secret revealed once at <code>authenticate</code> <span class='ref'>(§13)</span>." ],
+      [ "Channel assurance: a signed chain of grants from the manufacturer root to the receipt issuer — proves an <b>authorised channel</b>, not physical genuineness <span class='ref'>(§13)</span>.",
+        "Each grant binds <code>batchId</code>, grantor → grantee, quantity, parent grant, and a validity window." ],
+      [ "<code>authenticate</code> reveals the serial salt and sets the serial <b>nullifier</b> exactly once; a second use reverts → cloned-serial detection <span class='ref'>(§13)</span>.",
+        "On a public mempool, use a commit–reveal variant so the reveal can't be front-run <span class='ref'>(§11.1, §17)</span>.",
+        "UIs MUST NOT label an item “genuine” from VRS evidence alone — physical inspection is outside VRS <span class='ref'>(§13)</span>." ]
+    ],
+    consumption: [
+      [ "Core-only disclosure: the chain learns <code>productId</code>/<code>qty</code>, never the price <span class='ref'>(§6.1)</span>. <code>saltCommit</code> is disclosed; the salt is withheld.",
+        "<code>rootIdentity = address(0)</code> means undelegated — <code>verify()</code> returns the signer as the effective identity <span class='ref'>(VRSLib §5.6)</span>.",
+        "Shown trimmed: the full <code>HeaderDisclosure</code> also carries <code>schemaHash</code> and, when delegated, <code>delegRole / delegValidFrom / delegValidUntil / rootSig</code> — omitted here for brevity <span class='ref'>(VRSLib.HeaderDisclosure)</span>." ],
+      [ "<code>verifyLineItem</code> is <b>stateless and permissionless</b>; <code>ReceiptVerifier</code> holds the attester policy and the consuming contract adds its own; smart-contract consumption is a core design goal.",
+        "<b>Once-per-item:</b> bind consumption to <code>entitlementId</code> (<code>claimed[entId]</code>), never to the presenter — otherwise one item farms the reward again on every resale.",
+        "No anchor is needed for rewards: backdating a reward claim only hurts the claimer." ],
+      [ "A contract event is the consuming app's own outcome — composable on-chain, with no merchant call at claim time.",
+        "On-chain disclosure is forever: a core-disclosure proof accumulates <code>(address, productId)</code> pairs on a public chain; the zero-knowledge upgrade in <a href='#forward'>Forward compatibility</a> is the fix." ]
+    ],
+    recall: [
+      [ "Keyed on the manufacturing <code>batchId</code>, not on an entitlement or holder — it names no owner and carries no contact detail <span class='ref'>(recall_profile §2)</span>.",
+        "Reuses the lifecycle-attestation envelope; the full remedy text stays off-chain, committed by <code>remedyHash</code> (the URI is convenience).",
+        "Honoured only if the issuer is attested for the batch (manufacturer / grant chain) or holds a recall role the wallet accepts <span class='ref'>(recall_profile §5)</span>." ],
+      [ "Anchored for proven time and keyed by <code>batchId</code> as an indexed topic, so a wallet filters the log by exactly the batches it holds <span class='ref'>(recall_profile §3)</span>.",
+        "The manufacturer broadcasts <b>once per batch</b> and never learns who was listening; N holders pull.",
+        "Reusing <code>AnchorRegistry</code> for the notice hash is an acceptable alternative to a dedicated registry." ],
+      [ "Every endorsed line binds <code>batchId</code> in its <code>provenance</code> group, so the wallet already knows the owner's exposure — the match is entirely client-side <span class='ref'>(recall_profile §4)</span>.",
+        "Reaches the current holder regardless of how many times the item changed hands — the key is the item's batch, not a purchase record.",
+        "Residual leak: querying an RPC by <code>batchId</code> reveals <em>which batches</em> the client cares about — not holder-identifying (a batch is shared by many units), and mitigable via a privacy-preserving indexer.",
+        "Constructive notice (anchored) covers everyone watching; opt-in push (wallet messaging / relays) adds passive owners, with contact data never at the maker <span class='ref'>(recall_profile §6–7)</span>." ]
+    ]
+  };
+
+  (function renderWalks(){
+    function jstr(v){ return typeof v === "string" ? v : JSON.stringify(v, null, 2); }
+    Object.keys(WALK).forEach(function(uc){
+      var host = document.getElementById("walk-" + uc);
+      if (!host) return;
+      var note = document.createElement("p");
+      note.className = "walknote";
+      note.innerHTML = "Concrete artifacts exchanged in this flow. <b>Example</b> = a filled sample · <b>Template</b> = the shape with placeholders · <b>Ethereum</b> = calldata or state. Values reuse the worked-example receipt where exact; addresses and signatures are illustrative.";
+      host.appendChild(note);
+      WALK[uc].forEach(function(step, i){
+        var hasT = !!step.template, hasE = !!step.ethereum;
+        var notes = (NOTES[uc] && NOTES[uc][i]) || null;
+        var hasN = !!(notes && notes.length);
+        var card = document.createElement("div");
+        card.className = "wstep";
+        card._data = { example: jstr(step.example), template: hasT ? jstr(step.template) : null, eth: hasE ? jstr(step.ethereum) : null };
+        var tabs = '<button type="button" class="wtab active" data-t="example">Example</button>';
+        if (hasT) tabs += '<button type="button" class="wtab" data-t="template">Template</button>';
+        if (hasE) tabs += '<button type="button" class="wtab" data-t="eth">Ethereum</button>';
+        if (hasN) tabs += '<button type="button" class="wtab" data-t="notes">Notes</button>';
+        card.innerHTML =
+          '<div class="wstep-head"><span class="scopechip ' + step.scope + '">' + SCOPE[step.scope] + '</span><b></b></div>' +
+          (step.desc ? '<p class="wdesc"></p>' : '') +
+          '<div class="wtabs">' + tabs + '</div>' +
+          '<pre class="wjson"></pre>' +
+          (hasN ? '<div class="wnotes" hidden><ul>' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul></div>' : '');
+        card.querySelector(".wstep-head b").textContent = step.title;
+        if (step.desc) card.querySelector(".wdesc").textContent = step.desc;
+        card.querySelector(".wjson").textContent = card._data.example;
+        host.appendChild(card);
+      });
+    });
+  })();
+
+  // Tab switching for walkthrough cards (event delegation).
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".wtab");
+    if (!b) return;
+    var card = b.closest(".wstep");
+    if (!card || !card._data) return;
+    var t = b.getAttribute("data-t");
+    card.querySelectorAll(".wtab").forEach(function (x) { x.classList.toggle("active", x === b); });
+    var pre = card.querySelector(".wjson");
+    var notes = card.querySelector(".wnotes");
+    if (t === "notes") {
+      pre.hidden = true;
+      if (notes) notes.hidden = false;
+    } else {
+      if (notes) notes.hidden = true;
+      pre.hidden = false;
+      pre.textContent = t === "template" ? card._data.template : t === "eth" ? card._data.eth : card._data.example;
+    }
+  });
+</script>
+</body>
+</html>

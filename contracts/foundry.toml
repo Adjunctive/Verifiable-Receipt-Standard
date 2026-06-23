@@ -1,0 +1,17 @@
+[profile.default]
+src = "interfaces"
+test = "test"
+out = "out"
+libs = []
+solc = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+remappings = [
+    "forge-std/=../../Reference/04-reference-contracts/lib/forge-std/src/",
+    "vrs-ref/=../../Reference/04-reference-contracts/src/",
+]
+# The conformance suite reuses the repo's forge-std and the canonical VRSLib
+# (pure crypto, used only to build test inputs). Allow reading them.
+allow_paths = ["../../Reference"]
+fs_permissions = [{ access = "read", path = "../../Reference" }]

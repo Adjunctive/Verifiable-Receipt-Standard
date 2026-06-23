@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifiable Receipt Standard (VRS) 1.0</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1a1a1a; --muted:#555; --hint:#777;
+    --rule:rgba(0,0,0,.12); --border:rgba(0,0,0,.16);
+    --accent:#005a9c; --accentbg:#eef4fb;
+    --code:#f4f4f2; --codeink:#1a1a1a;
+    --normbg:#fbfbfd; --good:#0a6b3b; --warn:#8a5a00; --warnbg:#fdf6e8;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#15171a; --ink:#e7e7e3; --muted:#aeb0b3; --hint:#8a8d90;
+      --rule:rgba(255,255,255,.14); --border:rgba(255,255,255,.2);
+      --accent:#6fb3e6; --accentbg:#16242f; --code:#1d2024; --codeink:#e7e7e3;
+      --normbg:#181b1f; --good:#73d39b; --warn:#e0b25e; --warnbg:#241f12; }
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Georgia,"Times New Roman",serif;line-height:1.6;font-size:17px;}
+  .wrap{max-width:50rem;margin:0 auto;padding:2.5rem 1.4rem 6rem;}
+  header.doc{border-bottom:3px double var(--rule);padding-bottom:1.4rem;margin-bottom:1.4rem;}
+  h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .3rem;}
+  .subtitle{font-size:1.05rem;color:var(--muted);margin:0;}
+  .docstatus{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.72rem;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--accent);
+    background:var(--accentbg);border:1px solid var(--accent);border-radius:4px;padding:.25rem .55rem;}
+  h2,h3,h4{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.25;margin:2.2rem 0 .6rem;scroll-margin-top:1rem;}
+  h2{font-size:1.5rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;}
+  h3{font-size:1.2rem;} h4{font-size:1.02rem;}
+  p,li{color:var(--ink);}
+  a{color:var(--accent);}
+  code,.mono{font-family:var(--mono);font-size:.86em;}
+  p code,li code,td code{background:var(--code);padding:.05em .35em;border-radius:3px;}
+  pre{background:var(--code);color:var(--codeink);border:1px solid var(--border);border-radius:6px;
+    padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.8rem;line-height:1.5;}
+  pre code{background:none;padding:0;}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0;
+    font-family:ui-sans-serif,system-ui,sans-serif;}
+  th,td{border:1px solid var(--border);padding:.45rem .6rem;text-align:left;vertical-align:top;}
+  th{background:var(--accentbg);}
+  .rfc{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-variant:small-caps;
+    letter-spacing:.02em;font-size:.92em;}
+  dfn{font-style:italic;font-weight:700;}
+  .label{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.66rem;font-weight:700;
+    letter-spacing:.07em;text-transform:uppercase;border-radius:3px;padding:.12rem .4rem;vertical-align:middle;}
+  .label.norm{color:#fff;background:var(--accent);}
+  .label.info{color:var(--muted);background:var(--code);border:1px solid var(--border);}
+  section.normative>h2:after{content:" ";}
+  .note,.example,.issue{border:1px solid var(--border);border-left-width:4px;border-radius:4px;
+    padding:.7rem 1rem;margin:1.1rem 0;font-size:.95rem;}
+  .note{background:var(--normbg);border-left-color:var(--accent);}
+  .example{background:var(--code);border-left-color:var(--good);}
+  .example .ex-h,.note .n-h,.issue .i-h{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;
+    font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.4rem;}
+  .example .ex-h{color:var(--good);} .note .n-h{color:var(--accent);} .issue{background:var(--warnbg);border-left-color:var(--warn);} .issue .i-h{color:var(--warn);}
+  nav.toc{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.9rem;
+    background:var(--normbg);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;}
+  nav.toc .toc-h{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--hint);margin-bottom:.6rem;}
+  nav.toc ol{margin:0;padding-left:1.3rem;}
+  nav.toc ol ol{padding-left:1.1rem;}
+  nav.toc li{margin:.18rem 0;}
+  nav.toc a{text-decoration:none;}
+  nav.toc a:hover{text-decoration:underline;}
+  .secnum{color:var(--hint);font-weight:400;}
+  dl.terms dt{font-weight:700;margin-top:.7rem;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.95rem;}
+  dl.terms dd{margin:.15rem 0 0;color:var(--muted);font-size:.95rem;}
+  .small{font-size:.85rem;color:var(--muted);}
+  hr{border:0;border-top:1px solid var(--rule);margin:2rem 0;}
+  ul.compact li{margin:.2rem 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <p class="docstatus">Draft Community Group Specification</p>
+  <h1>Verifiable Receipt Standard (VRS)</h1>
+  <p class="subtitle">Version 1.0 — signed off-chain receipts, on-chain status, and composable proof of purchase</p>
+</header>
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <h2>Abstract</h2>
+  <p>This specification defines the <strong>Verifiable Receipt Standard (VRS)</strong>: a standard for cryptographically verifiable digital receipts and receipt-derived item entitlements. A VRS receipt is a signed, off-chain document committing to a Merkle tree of a header and line items; a shared, chain-resident <em>status registry</em> records entitlement ownership, status, lifecycle event hashes, and serial authentication. VRS supports selective disclosure of receipt fields, transferable item-level entitlements, credit (return/correction) graphs, manufacturer serial authentication, batch-keyed recall notices, and consumption of proofs by smart contracts. It deliberately separates what a signature proves (an issuer made a statement) from legal title, physical possession, and physical genuineness, which it does not establish.</p>
+  <p>This document is the normative specification, with sufficient detail for an independent implementer to produce conforming issuers, holders, verifiers, services, and registry contracts. The companion <a href="01-vrs-overview.html">VRS Overview</a> is the primary informative source; the <code>Reference/</code> tree (formal specification draft, reference Solidity contracts, conformance vectors, and design notes) is a secondary source. Two companion documents complete the implementer's kit: the <a href="03-vrs-data-formats.html">VRS Data Formats</a> (canonical JSON for every document type) and the <a href="04-vrs-conformance-vectors.html">VRS Conformance Vectors</a> (byte-exact test fixtures).</p>
+</section>
+
+<!-- SOTD -->
+<section id="sotd">
+  <h2>Status of This Document</h2>
+  <p>This is a <strong>draft</strong>. It is unaudited and not yet suitable for production deployment with real value. The wire and commitment format described here is frozen as <strong>VRS major version 1</strong> (see <a href="#sec-encoding">§4</a> and <a href="#sec-crypto">§6</a>); the prose continues to evolve toward a stable 1.0. Implementations claiming conformance <span class="rfc">must</span> reproduce the normative test vectors of <a href="#appendix-vectors">Appendix A</a> byte-for-byte.</p>
+  <p>Where this document and the reference Solidity library <code>VRSLib</code> disagree on a hash construction, <code>VRSLib</code> and the conformance vectors are authoritative; report the discrepancy.</p>
+</section>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-h">Table of Contents</div>
+  <ol>
+    <li><a href="#sec-intro">Introduction</a></li>
+    <li><a href="#sec-conformance">Conformance</a>
+      <ol>
+        <li><a href="#sec-keywords">Requirement keywords</a></li>
+        <li><a href="#sec-classes">Conformance classes</a></li>
+        <li><a href="#sec-proves">What VRS proves and does not prove</a></li>
+      </ol></li>
+    <li><a href="#sec-terms">Terminology</a></li>
+    <li><a href="#sec-encoding">Global encoding rules</a></li>
+    <li><a href="#sec-schema">Schema identifiers</a></li>
+    <li><a href="#sec-crypto">Cryptographic constructions</a>
+      <ol>
+        <li><a href="#sec-tags">Domain-separation tags</a></li>
+        <li><a href="#sec-grouphash">Group, leaf, and node hashes</a></li>
+        <li><a href="#sec-derived">Salt commitments and entitlement IDs</a></li>
+        <li><a href="#sec-sign">Signatures and EIP-712 digests</a></li>
+        <li><a href="#sec-proofproc">Merkle proof processing</a></li>
+      </ol></li>
+    <li><a href="#sec-receipt">Receipt document model</a>
+      <ol>
+        <li><a href="#sec-rtypes">Receipt types</a></li>
+        <li><a href="#sec-header">Header</a></li>
+        <li><a href="#sec-groups">Line-item groups and fields</a></li>
+        <li><a href="#sec-tree">Commitment scheme</a></li>
+        <li><a href="#sec-fiscal">Commercial core and fiscal evidence</a></li>
+      </ol></li>
+    <li><a href="#sec-identity">Issuer identity and delegation</a></li>
+    <li><a href="#sec-proofs">Proofs and presentations</a>
+      <ol>
+        <li><a href="#sec-modes">Disclosure levels</a></li>
+        <li><a href="#sec-proofobj">Proof object</a></li>
+        <li><a href="#sec-verify">Verification algorithm</a></li>
+        <li><a href="#sec-challenge">Holder challenge</a></li>
+      </ol></li>
+    <li><a href="#sec-refs">References and claim links</a></li>
+    <li><a href="#sec-bearer">Bearer secrets and the holder archive</a></li>
+    <li><a href="#sec-credit">Credit documents and credit graphs</a></li>
+    <li><a href="#sec-registry-state">Canonical registry state</a></li>
+    <li><a href="#sec-registry">Entitlement registry</a></li>
+    <li><a href="#sec-lifecycle">Lifecycle attestations</a></li>
+    <li><a href="#sec-mfg">Manufacturing and serial authentication</a></li>
+    <li><a href="#sec-recall">Recall notices</a></li>
+    <li><a href="#sec-consume">On-chain consumption</a></li>
+    <li><a href="#sec-services">Service and agent requirements</a></li>
+    <li><a href="#sec-privacy">Privacy and security considerations</a></li>
+    <li><a href="#sec-forward">Forward compatibility</a></li>
+  </ol>
+  <div class="toc-h" style="margin-top:.8rem">Appendices</div>
+  <ol style="list-style:upper-alpha">
+    <li><a href="#appendix-vectors">Worked example and test vectors</a></li>
+    <li><a href="#appendix-contracts">Reference contract interfaces</a></li>
+    <li><a href="#appendix-refs">References</a></li>
+  </ol>
+</nav>
+
+<!-- 1 INTRODUCTION -->
+<section id="sec-intro">
+  <h2><span class="secnum">1.</span> Introduction <span class="label info">Informative</span></h2>
+  <p>A receipt today is a PDF, an email, or a row in a merchant's database: hard to verify, easy to lose, useless to software, and poor for resale, warranty, and returns. Putting receipts directly on a public blockchain would publish everyone's purchase history and cost gas on billions of transactions. VRS takes a different route, captured in one sentence:</p>
+  <p class="note"><span class="n-h">Core idea</span> A receipt is a signed off-chain document. The chain is a shared <em>status</em> layer, not the receipt database.</p>
+  <p>Everything private — the products, amounts, and parties — stays in a signed document held by the user. The chain is written only when parties who do not trust each other must agree on a fact about state: who currently holds an item's rights, whether it was returned or reported stolen, when a service record provably existed, or whether a manufacturer's serial has been seen before.</p>
+  <p>VRS distinguishes <strong>two objects</strong>. The <em>fiscal (basket) receipt</em> is non-transferable evidence of who paid what, kept for tax, expense, and accounting. The <em>item entitlement</em> is a right derived from a single line item that may be registered, transferred, used for warranty or resale, and connected to lifecycle history. A commercial core verifies anywhere; jurisdiction-specific tax evidence is bound by profile rather than forced into one global schema. The remainder of this document specifies these objects and the operations on them. For a narrative treatment, see the <a href="01-vrs-overview.html">Overview</a>.</p>
+</section>
+
+<!-- 2 CONFORMANCE -->
+<section id="sec-conformance" class="normative">
+  <h2><span class="secnum">2.</span> Conformance <span class="label norm">Normative</span></h2>
+
+  <h3 id="sec-keywords"><span class="secnum">2.1</span> Requirement keywords</h3>
+  <p>The key words <span class="rfc">must</span>, <span class="rfc">must not</span>, <span class="rfc">required</span>, <span class="rfc">shall</span>, <span class="rfc">shall not</span>, <span class="rfc">should</span>, <span class="rfc">should not</span>, <span class="rfc">recommended</span>, <span class="rfc">may</span>, and <span class="rfc">optional</span> in this document are to be interpreted as described in <a href="#ref-rfc2119">[RFC 2119]</a> and <a href="#ref-rfc8174">[RFC 8174]</a> when, and only when, they appear in all capitals.</p>
+
+  <h3 id="sec-classes"><span class="secnum">2.2</span> Conformance classes</h3>
+  <p>An implementation <span class="rfc">may</span> claim one or more conformance classes, and <span class="rfc">must not</span> claim a class whose <span class="rfc">required</span> behaviour it does not implement.</p>
+  <table>
+    <tr><th>Class</th><th>Conforms by</th></tr>
+    <tr><td>Document Producer</td><td>Producing VRS receipt, credit, delivery, service, lifecycle, or recall documents per <a href="#sec-receipt">§7</a>, <a href="#sec-credit">§12</a>, <a href="#sec-lifecycle">§15</a>, <a href="#sec-recall">§17</a>.</td></tr>
+    <tr><td>Document Verifier</td><td>Verifying document signatures, commitments, and disclosed fields per <a href="#sec-crypto">§6</a> and <a href="#sec-proofs">§9</a>.</td></tr>
+    <tr><td>Issuer Identity Publisher / Verifier</td><td>Publishing or resolving issuer manifests and delegate keys per <a href="#sec-identity">§8</a>.</td></tr>
+    <tr><td>Fiscal Evidence Verifier</td><td>Verifying profile-specific fiscal payloads, references, and status per <a href="#sec-fiscal">§7.5</a>.</td></tr>
+    <tr><td>Claim/Ref Service</td><td>Serving powerless refs, one-time claims, credit graphs, exports per <a href="#sec-services">§20</a>.</td></tr>
+    <tr><td>Holder Agent</td><td>Importing, presenting, registering, transferring, and exporting holder-side data per <a href="#sec-services">§20</a>.</td></tr>
+    <tr><td>Registry Implementation</td><td>Implementing the Ethereum State Profile registry contracts per <a href="#sec-registry">§14</a>, <a href="#appendix-contracts">Appendix B</a>.</td></tr>
+    <tr><td>Credit Graph Service</td><td>Serving <code>vrs/credit-graph/1.0</code> per <a href="#sec-credit">§12</a>.</td></tr>
+    <tr><td>Lifecycle Producer</td><td>Producing signed lifecycle attestations per <a href="#sec-lifecycle">§15</a>.</td></tr>
+    <tr><td>Manufacturer Profile</td><td>Supporting batch provenance, serial authentication, channel assurance per <a href="#sec-mfg">§16</a>.</td></tr>
+    <tr><td>Conformance Runner</td><td>Reproducing the portable conformance vectors (<a href="#appendix-vectors">Appendix A</a>).</td></tr>
+  </table>
+
+  <h3 id="sec-proves"><span class="secnum">2.3</span> What VRS proves and does not prove</h3>
+  <p>VRS <strong>proves</strong>: that a recognised issuer signed a receipt commitment; that a receipt root commits to disclosed fields; that a line item exists in a receipt; that an entitlement ID derives from a receipt root, line index, and bearer salt; that a registered holder controls an entitlement (given a holder challenge); that a lifecycle event hash existed by an anchored time; that a credit document references an origin receipt; that fiscal evidence is bound by hash or reference; and that a serial authenticates against a manufacturer batch commitment.</p>
+  <p>VRS <strong>does not</strong>, by itself, prove: tax or accounting compliance; legal title; physical possession; physical genuineness; complete lifecycle history; the honesty of an issuer's statements; or universal legal enforceability of a warranty or return right. A conforming user interface <span class="rfc">must not</span> represent a VRS signature as any of these. It <span class="rfc">should</span> use terms such as <em>holder</em>, <em>registered holder</em>, and <em>entitlement control</em> rather than unqualified <em>ownership</em>.</p>
+</section>
+
+<!-- 3 TERMINOLOGY -->
+<section id="sec-terms">
+  <h2><span class="secnum">3.</span> Terminology</h2>
+  <dl class="terms">
+    <dt><dfn>Receipt</dfn></dt><dd>Signed evidence of a transaction, delivery, service, or credit.</dd>
+    <dt><dfn>Fiscal (basket) receipt</dfn></dt><dd>Non-transferable transaction evidence tied to payer, tax, and accounting context.</dd>
+    <dt><dfn>Commercial core</dfn></dt><dd>The portable receipt fields describing a commercial event independently of any national tax regime.</dd>
+    <dt><dfn>Fiscal evidence</dfn></dt><dd>External, profile-specific tax/accounting evidence bound to a receipt (e-invoice, tax invoice, fiscal QR, signed tax JSON, UBL/Peppol document, national reference).</dd>
+    <dt><dfn>Entitlement</dfn></dt><dd>An item-level right, claim, or evidence derived from a single receipt line.</dd>
+    <dt><dfn>Entitlement ID</dfn></dt><dd><code>keccak256(abi.encode(T_ENT, receiptRoot, lineIndex, saltCommit))</code>; the opaque registry key.</dd>
+    <dt><dfn>Holder</dfn></dt><dd>Party or key/account controlling a bearer secret or registered entitlement.</dd>
+    <dt><dfn>Registered holder</dfn></dt><dd>Current <code>holderOf(entitlementId)</code> in the canonical registry.</dd>
+    <dt><dfn>First holder</dfn></dt><dd>First key/account to register an entitlement; set once and never changed by transfer.</dd>
+    <dt><dfn>Issuer root</dfn></dt><dd>Long-lived public key or account a verifier accepts as the root signing identity for an issuer role.</dd>
+    <dt><dfn>Delegate (operational) key</dfn></dt><dd>A hot key authorised by an issuer root, for a limited role and validity window, to sign routine documents.</dd>
+    <dt><dfn>Receipt root</dfn></dt><dd>Merkle root committing to the header leaf and line-item leaves; the value the issuer signs.</dd>
+    <dt><dfn>Group hash</dfn></dt><dd>Hash of a line-item group (<code>core</code>, <code>commercial</code>, <code>warranty</code>, <code>descriptive</code>, <code>provenance</code>).</dd>
+    <dt><dfn>Entitlement salt</dfn></dt><dd>A 32-byte bearer secret, unique per line item, used to derive the entitlement ID.</dd>
+    <dt><dfn>Salt commitment</dfn></dt><dd><code>keccak256(abi.encode(T_SC, entitlementSalt))</code>; carried by documents and proofs in place of the salt.</dd>
+    <dt><dfn>Bearer-secret payload</dfn></dt><dd>A separate artifact containing entitlement salts, serial salts, or other bearer authority.</dd>
+    <dt><dfn>Nullifier</dfn></dt><dd>A set-once marker; a serial nullifier marks a manufacturer serial as authenticated.</dd>
+    <dt><dfn>Anchoring</dfn></dt><dd>Publishing a document or batch root hash to the chain to upgrade asserted time to proven time.</dd>
+    <dt><dfn>Canonical deployment</dfn></dt><dd>The registry deployment identified by a signed deployment manifest for a given ecosystem.</dd>
+  </dl>
+</section>
+
+<!-- 4 ENCODING -->
+<section id="sec-encoding" class="normative">
+  <h2><span class="secnum">4.</span> Global encoding rules <span class="label norm">Normative</span></h2>
+  <ol class="compact">
+    <li>The hash function is <code>keccak256</code> (the Keccak-256 used by Ethereum, not NIST SHA3-256).</li>
+    <li>On-chain-reconstructable values <span class="rfc">must</span> be encoded with Solidity <code>abi.encode</code> (32-byte left/right padded ABI encoding), as specified field-by-field in <a href="#sec-crypto">§6</a>.</li>
+    <li>Canonical JSON <span class="rfc">must</span> use the JSON Canonicalization Scheme, <a href="#ref-jcs">[RFC 8785]</a>.</li>
+    <li>JSON integers whose values are used for hashing or protocol state <span class="rfc">must</span> be decimal strings unless otherwise specified.</li>
+    <li>Binary values in JSON <span class="rfc">must</span> be lowercase <code>0x</code> hex strings.</li>
+    <li>Implementations <span class="rfc">must</span> reject invalid lexical forms rather than silently normalising them.</li>
+    <li>Timestamps <span class="rfc">must</span> be Unix seconds.</li>
+    <li>Receipt documents and ordinary proof objects <span class="rfc">must not</span> contain bearer secrets.</li>
+  </ol>
+</section>
+
+<!-- 5 SCHEMA IDS -->
+<section id="sec-schema" class="normative">
+  <h2><span class="secnum">5.</span> Schema identifiers <span class="label norm">Normative</span></h2>
+  <p>Every VRS document and wire object <span class="rfc">must</span> carry a <code>schema</code> string identifying its type and major version. A verifier <span class="rfc">must</span> reject an object whose <code>schema</code> is unknown to its policy. The <code>schema</code> string is for routing and policy; it is informational and <span class="rfc">must not</span> be treated as part of any keccak commitment. Cryptographic versioning is carried by the receipt <code>schemaHash</code> and by the frozen v1 commitment tags (<a href="#sec-tags">§6.1</a>).</p>
+  <table>
+    <tr><th>Object</th><th><code>schema</code></th></tr>
+    <tr><td>Receipt (sale/delivery/service/credit)</td><td><code>vrs/receipt/1.0</code></td></tr>
+    <tr><td>Bearer-secrets payload</td><td><code>vrs/secrets/1.0</code></td></tr>
+    <tr><td>Selective-disclosure proof</td><td><code>vrs/proof/1.0</code></td></tr>
+    <tr><td>Holder presentation (base / warranty / resale)</td><td><code>vrs/presentation/1.0</code>, <code>…/warranty/1.0</code>, <code>…/resale/1.0</code></td></tr>
+    <tr><td>Credit graph</td><td><code>vrs/credit-graph/1.0</code></td></tr>
+    <tr><td>Lifecycle attestation</td><td><code>vrs/lifecycle-attestation/1.0</code></td></tr>
+    <tr><td>Recall notice</td><td><code>vrs/recall-notice/1.0</code></td></tr>
+    <tr><td>Grant chain</td><td><code>vrs/grant-chain/1.0</code></td></tr>
+    <tr><td>Ref response / Claim response</td><td><code>vrs/ref-response/1.0</code>, <code>vrs/claim-response/1.0</code></td></tr>
+    <tr><td>Issuer manifest</td><td><code>vrs/issuer-manifest/1.0</code></td></tr>
+  </table>
+</section>
+
+<!-- 6 CRYPTO -->
+<section id="sec-crypto" class="normative">
+  <h2><span class="secnum">6.</span> Cryptographic constructions <span class="label norm">Normative</span></h2>
+  <p>This section is the heart of the wire format. All constructions are frozen for VRS major version 1. A conforming implementation <span class="rfc">must</span> reproduce every value in <a href="#appendix-vectors">Appendix A</a> exactly.</p>
+
+  <h3 id="sec-tags"><span class="secnum">6.1</span> Domain-separation tags</h3>
+  <p>Each tag is <code>keccak256</code> of an ASCII label. Every hash is domain-separated by a leading tag so that, for example, a <code>core</code> hash can never collide with a header leaf or an internal node.</p>
+  <table>
+    <tr><th>Constant</th><th>Label</th><th>Value (<code>keccak256</code>)</th></tr>
+    <tr><td><code>T_CORE</code></td><td><code>VRS:group:core:v1</code></td><td class="mono">0x8a4ee4fa…cc7293cd</td></tr>
+    <tr><td><code>T_COMM</code></td><td><code>VRS:group:commercial:v1</code></td><td class="mono">0x358226e1…13ff5651</td></tr>
+    <tr><td><code>T_WARR</code></td><td><code>VRS:group:warranty:v1</code></td><td class="mono">0xc2c8821a…5d2c5e95</td></tr>
+    <tr><td><code>T_DESC</code></td><td><code>VRS:group:descriptive:v1</code></td><td class="mono">0xaa20af8d…986514bc</td></tr>
+    <tr><td><code>T_PROV</code></td><td><code>VRS:group:provenance:v1</code></td><td class="mono">0x83cc047a…5f062a38</td></tr>
+    <tr><td><code>T_ITEM</code></td><td><code>VRS:leaf:item:v1</code></td><td class="mono">0x1919f908…a84ccc57</td></tr>
+    <tr><td><code>T_HEADER</code></td><td><code>VRS:leaf:header:v1</code></td><td class="mono">0x21bdae2a…95b57613</td></tr>
+    <tr><td><code>T_NODE</code></td><td><code>VRS:node:v1</code></td><td class="mono">0xc813b5e6…ffe04f73</td></tr>
+    <tr><td><code>T_ANODE</code></td><td><code>VRS:anchor-node:v1</code></td><td class="mono">(anchor-batch trees)</td></tr>
+    <tr><td><code>T_ENT</code></td><td><code>VRS:entitlement:v1</code></td><td class="mono">0x3cb2d811…ef63f7b4</td></tr>
+    <tr><td><code>T_SC</code></td><td><code>VRS:salt-commit:v1</code></td><td class="mono">0x228c9873…8693b10…</td></tr>
+    <tr><td><code>T_SERIAL</code>, <code>T_SNODE</code>, <code>T_NULL</code></td><td><code>VRS:serial:v1</code>, <code>VRS:serial-node:v1</code>, <code>VRS:nullifier:v1</code></td><td class="mono">(manufacturing)</td></tr>
+    <tr><td><code>T_DELEG</code></td><td><code>VRS:delegation:v1</code></td><td class="mono">(delegation cert)</td></tr>
+    <tr><td><code>PAD</code></td><td><code>VRS:pad:v1</code></td><td class="mono">0xb6dcc394…6fde8458</td></tr>
+    <tr><td><code>ABSENT</code></td><td><code>VRS:absent:v1</code></td><td class="mono">0x5ae9378f…a41b2829</td></tr>
+  </table>
+  <p class="small">Truncated values are shown for reference; the full 32-byte values appear in <a href="#appendix-vectors">Appendix A</a> and are recomputable from the labels.</p>
+
+  <h3 id="sec-grouphash"><span class="secnum">6.2</span> Group, leaf, and node hashes</h3>
+  <p>Each line-item leaf commits to five groups; an absent optional group uses the <code>ABSENT</code> sentinel in place of its group hash. The constructions are:</p>
+<pre><code>coreHash        = keccak256(abi.encode(T_CORE, uint256 lineIndex, bytes productId,
+                                        uint256 qtyMilli, bytes32 saltCommit))
+commercialHash  = keccak256(abi.encode(T_COMM, uint256 unitPriceMinor, uint32 taxRateBps,
+                                        bytes3 currency))
+warrantyHash    = keccak256(abi.encode(T_WARR, bytes warrantor, uint32 durationDays,
+                                        bytes32 termsHash))
+descriptiveHash = keccak256(abi.encode(T_DESC, bytes32 jcsHash))   // jcsHash = keccak256(JCS(descriptive))
+provenanceHash  = keccak256(abi.encode(T_PROV, bytes32 batchId, bytes32 serialSaltCommit))
+
+itemLeaf   = keccak256(abi.encode(T_ITEM, coreHash, commercialHash, warrantyHash,
+                                  descriptiveHash, provenanceHash))
+headerLeaf = keccak256(abi.encode(T_HEADER, address issuer, uint64 issuedAt, uint8 receiptType,
+                                  bytes32 fiscalHash, bytes32 delegationHash))
+node(l,r)  = keccak256(abi.encode(T_NODE, bytes32 l, bytes32 r))</code></pre>
+  <p><code>core</code> <span class="rfc">must</span> contain <code>saltCommit</code>, never the entitlement salt. Absent <code>fiscalHash</code> and <code>delegationHash</code> use the <code>ABSENT</code> sentinel (see <a href="#sec-identity">§8</a> for <code>delegationHash</code>).</p>
+
+  <h3 id="sec-derived"><span class="secnum">6.3</span> Salt commitments and entitlement IDs</h3>
+<pre><code>saltCommit    = keccak256(abi.encode(T_SC, bytes32 entitlementSalt))
+entitlementId = keccak256(abi.encode(T_ENT, bytes32 receiptRoot, uint256 lineIndex, bytes32 saltCommit))</code></pre>
+  <p>Documents and proofs carry <code>saltCommit</code> only. Because deriving an entitlement ID requires <code>saltCommit</code> (which is public) but <em>registering or claiming</em> it requires the salt preimage (a bearer secret), a party holding a proof cannot register or claim the corresponding entitlement (see <a href="#sec-registry">§14</a>).</p>
+
+  <h3 id="sec-sign"><span class="secnum">6.4</span> Signatures and EIP-712 digests</h3>
+  <p>Receipt commitments and delegation certificates are signed with EIP-712 typed data (<a href="#ref-eip712">[EIP-712]</a>). The domain is deliberately <strong>chain-agnostic</strong> (no <code>chainId</code> or <code>verifyingContract</code>), so a receipt verifies on any chain:</p>
+<pre><code>DOMAIN_TYPEHASH     = keccak256("EIP712Domain(string name,string version)")
+domainSeparator     = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256("VRS"), keccak256("1")))
+
+COMMITMENT_TYPEHASH = keccak256("ReceiptCommitment(bytes32 receiptRoot,bytes32 schemaHash)")
+commitmentDigest    = keccak256(0x1901 ++ domainSeparator ++
+                       keccak256(abi.encode(COMMITMENT_TYPEHASH, receiptRoot, schemaHash)))
+
+DELEGATION_TYPEHASH = keccak256("DelegationCert(address operationalKey,bytes32 role,uint64 validFrom,uint64 validUntil)")
+delegationDigest    = keccak256(0x1901 ++ domainSeparator ++
+                       keccak256(abi.encode(DELEGATION_TYPEHASH, operationalKey, role, validFrom, validUntil)))</code></pre>
+  <p>The issuer signs <code>commitmentDigest(receiptRoot, schemaHash)</code>. Signatures <span class="rfc">must</span> be 65-byte ECDSA <code>(r,s,v)</code> with <code>v ∈ {27,28}</code> and low-<code>s</code> (the upper bound is the secp256k1 half-order); verifiers <span class="rfc">must</span> reject malleable or zero-recovery signatures. Holder-side signatures (<a href="#sec-challenge">§9.4</a>, <a href="#sec-registry">§14</a>) <span class="rfc">must</span> support EOA recovery and <span class="rfc">should</span> support <a href="#ref-erc1271">[ERC-1271]</a> smart-account validation. Issuers whose keys are fiscalisation devices <span class="rfc">may</span> instead sign with COSE/X.509 under a fiscal-evidence profile.</p>
+
+  <h3 id="sec-proofproc"><span class="secnum">6.5</span> Merkle proof processing</h3>
+  <p>A Merkle path is processed against a leaf and its 0-based <code>index</code> (leaf position) by combining with the tagged <code>node</code> hash, choosing order by the low bit of the index at each level:</p>
+<pre><code>processProof(leaf, index, path):
+    cur = leaf
+    for sibling in path:
+        cur = (index &amp; 1 == 0) ? node(cur, sibling) : node(sibling, cur)
+        index = index &gt;&gt; 1
+    return cur</code></pre>
+  <p>The header leaf is processed at <code>index = 0</code>; line item <code>i</code> at <code>index = i + 1</code>. A VRS v1 receipt <span class="rfc">must not</span> exceed a Merkle path length of 16 (<a href="#sec-tree">§7.4</a>); verifiers <span class="rfc">must</span> reject any proof with a longer path. Anchor-batch trees use the structurally distinct <code>T_ANODE</code> tag so that receipt-tree and anchor-tree proofs cannot be confused.</p>
+</section>
+
+<!-- 7 RECEIPT MODEL -->
+<section id="sec-receipt" class="normative">
+  <h2><span class="secnum">7.</span> Receipt document model <span class="label norm">Normative</span></h2>
+
+  <h3 id="sec-rtypes"><span class="secnum">7.1</span> Receipt types</h3>
+  <table>
+    <tr><th><code>receiptType</code></th><th>Meaning</th></tr>
+    <tr><td><code>sale</code> / <code>0</code></td><td>Sale receipt (default).</td></tr>
+    <tr><td><code>delivery</code> / <code>1</code></td><td>Delivery receipt (issuer role <em>courier</em>, or a recipient countersignature).</td></tr>
+    <tr><td><code>service</code> / <code>2</code></td><td>Service receipt (issuer role <em>repairer</em>/<em>installer</em>).</td></tr>
+    <tr><td><code>credit</code> / <code>3</code></td><td>Credit/correction receipt (<a href="#sec-credit">§12</a>).</td></tr>
+  </table>
+  <p>All four types share the signing scheme, Merkle structure, and attestation model; they differ only in <code>receiptType</code> and the issuer role attested for the issuer.</p>
+
+  <h3 id="sec-header"><span class="secnum">7.2</span> Header</h3>
+  <p>The header leaf (<a href="#sec-grouphash">§6.2</a>) commits to: the signing <code>issuer</code> address; <code>issuedAt</code>; <code>receiptType</code>; <code>fiscalHash</code> (or <code>ABSENT</code>); and <code>delegationHash</code> (or <code>ABSENT</code>). The receipt document additionally carries the <code>schemaHash</code> (signed via the commitment digest) and the issuer signature. Issuer identity <span class="rfc">must</span> resolve to a root identity under the verifier's accepted policy (<a href="#sec-identity">§8</a>).</p>
+
+  <h3 id="sec-groups"><span class="secnum">7.3</span> Line-item groups and fields</h3>
+  <table>
+    <tr><th>Group</th><th>Required</th><th>Fields (type — unit)</th></tr>
+    <tr><td><code>core</code></td><td><span class="rfc">required</span></td><td><code>lineIndex</code> (uint256), <code>productId</code> (bytes — UTF-8 GS1 element string, or <code>gtin:</code>/<code>sku:</code>/<code>txt:</code> prefixed), <code>qtyMilli</code> (uint256 — quantity ×1000), <code>saltCommit</code> (bytes32)</td></tr>
+    <tr><td><code>commercial</code></td><td><span class="rfc">optional</span></td><td><code>unitPriceMinor</code> (uint256 — minor units), <code>taxRateBps</code> (uint32 — basis points), <code>currency</code> (bytes3 — ISO 4217 alpha-3)</td></tr>
+    <tr><td><code>warranty</code></td><td><span class="rfc">optional</span></td><td><code>warrantor</code> (bytes — e.g. <code>gln:…</code>), <code>durationDays</code> (uint32 — days), <code>termsHash</code> (bytes32 — <code>keccak256(JCS(terms))</code>)</td></tr>
+    <tr><td><code>descriptive</code></td><td><span class="rfc">optional</span></td><td>committed value (bytes32 — <code>keccak256(JCS(descriptive object))</code>)</td></tr>
+    <tr><td><code>provenance</code></td><td><span class="rfc">optional</span></td><td><code>batchId</code> (bytes32), <code>serialSaltCommit</code> (bytes32) — manufacturer endorsement (<a href="#sec-mfg">§16</a>)</td></tr>
+  </table>
+  <p>Tax rate <span class="rfc">must</span> be expressed in basis points (<code>taxRateBps</code>), not parts per million; warranty duration <span class="rfc">must</span> be expressed in days. Absent optional groups <span class="rfc">must</span> use the <code>ABSENT</code> sentinel as the group hash.</p>
+
+  <h3 id="sec-tree"><span class="secnum">7.4</span> Commitment scheme</h3>
+  <p>The receipt is a Merkle tree. The header leaf <span class="rfc">must</span> be at leaf index 0; line item <code>i</code> at leaf index <code>i + 1</code>. The tree <span class="rfc">must</span> be padded to a power of two using the <code>PAD</code> sentinel as filler leaves. The receipt root is the tree root and is the value the issuer signs (via the commitment digest). A v1 receipt <span class="rfc">must not</span> exceed depth 16: header plus all line items <span class="rfc">must</span> fit within 2<sup>16</sup> = 65 536 leaves (at most 65 535 line items). The commitment tags and field order are frozen for v1.</p>
+
+  <h3 id="sec-fiscal"><span class="secnum">7.5</span> Commercial core and fiscal evidence</h3>
+  <p>The commercial core (issuer, issue time, receipt type, committed line items, quantities, disclosed amounts, and entitlement-derivation material) <span class="rfc">must</span> be independently verifiable without understanding any jurisdiction's tax regime. Tax, accounting, and invoice-compliance evidence <span class="rfc">must</span> be modelled as fiscal evidence, bound via <code>fiscalHash</code>, <code>headerExtensions["vrs.fiscal"]</code>, profile-defined references, or attachment hashes. If no fiscal evidence is present, <code>fiscalHash</code> <span class="rfc">must</span> be <code>ABSENT</code>; if present, it <span class="rfc">must</span> commit to a canonical fiscal-evidence descriptor (profile id, jurisdiction, external identifiers, document/payload hash, verification endpoint, latest known status, predecessor/successor links). Sensitive fiscal payload contents <span class="rfc">must not</span> be written to the registry.</p>
+  <p>A verifier <span class="rfc">must</span> distinguish: signature/root verification; commercial-core proof; fiscal-evidence binding; profile-specific fiscal validation; and tax-compliance assessment. A signature or proof <span class="rfc">must not</span> be represented as proof of tax compliance unless a relevant fiscal profile has been validated and the verifier's policy accepts it. Example profile families: EU/Peppol/UBL (EN 16931), Japan qualified invoice, India GST e-invoice (IRN/QR), China digital fapiao, US expense evidence.</p>
+</section>
+
+<!-- 8 IDENTITY -->
+<section id="sec-identity" class="normative">
+  <h2><span class="secnum">8.</span> Issuer identity and delegation <span class="label norm">Normative</span></h2>
+  <p>A VRS signature proves a key signed a commitment. It becomes an <em>issuer</em> signature only under a verifier-accepted issuer policy; VRS does not define a global identity system or require a DID. A verifier policy <span class="rfc">may</span> accept any of: a local keyring; an issuer manifest (<code>vrs/issuer-manifest/1.0</code>) discovered at <code>/.well-known/vrs/issuer.json</code>; an anchored manifest hash/status in an accepted registry; a fiscal-evidence profile that identifies the issuer; a manufacturer/channel grant chain; or an attestation from a marketplace, PSP, GS1, regulator, or other accepted party.</p>
+  <p>Issuers <span class="rfc">should</span> operate a three-tier key hierarchy: a <strong>cold root key</strong> (offline; establishes identity, signs major transitions, recovers from compromise; <span class="rfc">should not</span> sign routine receipts); <strong>admin keys</strong> (publish manifests, rotate delegates, sign status); and <strong>live signing keys</strong> (short-lived, scoped, individually revocable delegates used by POS/ecommerce/service/manufacturing systems).</p>
+  <p><strong>Delegation.</strong> When a delegate signs, the header's <code>delegationHash</code> <span class="rfc">must</span> commit the delegation, and the root <span class="rfc">must</span> sign a delegation certificate:</p>
+<pre><code>delegationHash = (rootIdentity == address(0))
+   ? ABSENT
+   : keccak256(abi.encode(T_DELEG, address rootIdentity, bytes32 role, uint64 validFrom, uint64 validUntil))</code></pre>
+  <p>The certificate binds <code>(operationalKey, role, validFrom, validUntil)</code> and is signed by the root over <code>delegationDigest</code> (<a href="#sec-sign">§6.4</a>). A verifier <span class="rfc">must</span> reject a delegated receipt whose certified <code>role</code> does not match the role it is verifying for: a key delegated for <code>merchant</code> <span class="rfc">must not</span> be accepted as <code>manufacturer</code> or <code>courier</code>, even if the root is independently attested for that other role. A delegate signature <span class="rfc">must not</span> be accepted outside its <code>[validFrom, validUntil]</code> window for the receipt's <code>issuedAt</code>. The effective issuer identity is the <code>rootIdentity</code> when delegated, else the signer; attestation checks and all issuer comparisons <span class="rfc">must</span> use the effective identity.</p>
+  <p>Issuer status is dynamic (<em>active</em>, <em>revoked</em>, <em>superseded</em>, <em>compromised</em>, <em>unknown</em>). Verifiers <span class="rfc">should</span> evaluate issuer/manifest/delegate status at both issuance time and verification time when available, and <span class="rfc">should</span> quarantine receipts from a compromised key's affected window.</p>
+</section>
+
+<!-- 9 PROOFS -->
+<section id="sec-proofs" class="normative">
+  <h2><span class="secnum">9.</span> Proofs and presentations <span class="label norm">Normative</span></h2>
+
+  <h3 id="sec-modes"><span class="secnum">9.1</span> Disclosure levels</h3>
+  <p>VRS supports selective disclosure. A proof declares its <dfn>disclosure level</dfn> — how much of the receipt it reveals — and the holder reveals only the sub-leaves that level requires, plus the Merkle path and signed root. The frozen identifiers are:</p>
+  <table>
+    <tr><th>Disclosure level</th><th>Identifier</th><th>Reveals</th></tr>
+    <tr><td>Full document</td><td><code>full</code></td><td>The entire receipt.</td></tr>
+    <tr><td>Core</td><td><code>core</code></td><td>Header plus a line's <code>core</code> group (no price).</td></tr>
+    <tr><td>Selected groups</td><td><code>core+&lt;group&gt;</code></td><td>Header plus <code>core</code> plus the named groups (e.g. <code>core+commercial</code>, <code>core+warranty</code>).</td></tr>
+    <tr><td>Zero-knowledge <span class="small">(future)</span></td><td><code>zk</code></td><td>Proves a statement about the receipt over the same commitments.</td></tr>
+  </table>
+  <p class="small">Disclosure level is a property of the proof; it is unrelated to Ethereum layer-1 / layer-2. The labels <code>L0</code> / <code>L1-core</code> / <code>L1-full</code> / <code>L2</code> used by earlier drafts are deprecated in favour of these identifiers.</p>
+  <p>A proof <span class="rfc">must</span> disclose <code>saltCommit</code>, never the entitlement salt. Possession of a proof <span class="rfc">must not</span> be treated as entitlement control once an entitlement is registered (<a href="#sec-challenge">§9.4</a>).</p>
+
+  <h3 id="sec-proofobj"><span class="secnum">9.2</span> Proof object</h3>
+  <p>A line-item proof consists of a header disclosure and a core disclosure (field names follow the reference library):</p>
+<pre><code>HeaderDisclosure { address issuer; uint64 issuedAt; uint8 receiptType; bytes32 fiscalHash;
+                   bytes32 schemaHash; bytes issuerSig; bytes32[] headerPath;
+                   address rootIdentity;      // address(0) = undelegated
+                   bytes32 delegRole; uint64 delegValidFrom; uint64 delegValidUntil; bytes rootSig; }
+
+CoreDisclosure   { uint256 lineIndex; bytes productId; uint256 qtyMilli; bytes32 saltCommit;
+                   bytes32 commercialHash; bytes32 warrantyHash; bytes32 descriptiveHash;
+                   bytes32 provenanceHash; bytes32[] itemPath; }</code></pre>
+  <p>An undisclosed group is represented by its group hash (or <code>ABSENT</code>); a disclosed group supplies the preimage fields from which the verifier recomputes the group hash.</p>
+
+  <h3 id="sec-verify"><span class="secnum">9.3</span> Verification algorithm</h3>
+  <p>To verify a core-disclosure line-item proof, a verifier <span class="rfc">must</span>:</p>
+  <ol class="compact">
+    <li>Require <code>headerPath.length == itemPath.length</code> and <code>≤ 16</code>; otherwise reject.</li>
+    <li>Compute <code>delegationHash</code> from the delegation fields; compute the header leaf; compute <code>receiptRoot = processProof(headerLeaf, 0, headerPath)</code>.</li>
+    <li>Compute <code>coreHash</code> from the disclosed core fields; compute <code>itemLeaf</code>; require <code>processProof(itemLeaf, lineIndex + 1, itemPath) == receiptRoot</code>.</li>
+    <li>Recover the signer from <code>commitmentDigest(receiptRoot, schemaHash)</code> and the issuer signature; require it equals <code>issuer</code>.</li>
+    <li>If delegated (<code>rootIdentity != 0</code>): require <code>issuedAt ∈ [delegValidFrom, delegValidUntil]</code>; recover the root from <code>delegationDigest(issuer, delegRole, delegValidFrom, delegValidUntil)</code> and <code>rootSig</code>; require it equals <code>rootIdentity</code>; the effective identity is <code>rootIdentity</code>. Otherwise the effective identity is <code>issuer</code>.</li>
+    <li>Apply issuer policy to the effective identity (<a href="#sec-identity">§8</a>); for role-scoped verifiers, require <code>delegRole</code> matches the verifier's role.</li>
+    <li>Derive <code>entitlementId = entitlementId(receiptRoot, lineIndex, saltCommit)</code> and <code>productIdHash = keccak256(productId)</code> for downstream use.</li>
+  </ol>
+  <p>The cost is one ECDSA recovery, ~log(n) keccaks for the path, and one attestation lookup. The verifier is stateless and permissionless; consuming logic adds its own policy (<a href="#sec-consume">§18</a>).</p>
+
+  <h3 id="sec-challenge"><span class="secnum">9.4</span> Holder challenge</h3>
+  <p>A proof object is copyable and therefore confers no control over a registered entitlement. For a registered entitlement, a verifier that needs to know the presenter controls it <span class="rfc">must</span> require a <strong>holder challenge</strong> signed by the current registered holder key or smart account. A challenge <span class="rfc">should</span> carry an <code>entitlementId</code>, a fresh nonce, an audience, and an expiry, and <span class="rfc">must</span> be verified against <code>holderOf(entitlementId)</code> using EOA recovery or <a href="#ref-erc1271">[ERC-1271]</a>.</p>
+</section>
+
+<!-- 10 REFS -->
+<section id="sec-refs" class="normative">
+  <h2><span class="secnum">10.</span> References and claim links <span class="label norm">Normative</span></h2>
+  <p>VRS defines the URI schemes:</p>
+<pre><code>vrs1:ref:&lt;https-url&gt;          // powerless, shareable
+vrs1:claim:&lt;url-or-token-url&gt;  // bearer authority; redeemed once
+vrs1:proof:&lt;encoded-proof&gt;
+vrs1:doc:&lt;encoded-document&gt;</code></pre>
+  <p><code>vrs1:ref</code> is powerless and shareable. <code>vrs1:claim</code> carries (or leads to) bearer authority and <span class="rfc">must not</span> be requested by desks or verifiers where <code>vrs1:ref</code> or <code>vrs1:proof</code> suffices. <code>GET /ref/{refId}</code> <span class="rfc">must</span> return a <code>vrs/ref-response/1.0</code> object containing the powerless document (or reference) and the credit graph known to the origin channel, and <span class="rfc">must</span> omit bearer secrets, claim tokens, register authorisations, and wallet keys; it <span class="rfc">should</span> use private cache headers. Claim redemption <span class="rfc">must</span> be one-time or otherwise payer-bound by an explicit profile, and the service <span class="rfc">must</span> mark a claim token consumed before returning bearer secrets.</p>
+</section>
+
+<!-- 11 BEARER -->
+<section id="sec-bearer" class="normative">
+  <h2><span class="secnum">11.</span> Bearer secrets and the holder archive <span class="label norm">Normative</span></h2>
+  <p>Receipt documents and bearer secrets are separate artifacts. A bearer-secret payload (<code>vrs/secrets/1.0</code>) carries entitlement salts, serial salts, and other bearer authority, and <span class="rfc">must not</span> appear in documents, ref responses, or ordinary proofs. <code>.vrsbox</code> is the portable holder archive; it <span class="rfc">may</span> contain receipt documents, bearer secrets, registrations, lifecycle documents, and cached credit graphs/manifests/attestations, and <span class="rfc">must not</span> contain holder private keys unless a separate wallet profile permits it. Holder agents <span class="rfc">must</span> preserve the document/secret separation and <span class="rfc">must</span> support <code>.vrsbox</code> export where they act as custodians.</p>
+</section>
+
+<!-- 12 CREDIT -->
+<section id="sec-credit" class="normative">
+  <h2><span class="secnum">12.</span> Credit documents and credit graphs <span class="label norm">Normative</span></h2>
+  <p>A <code>credit</code> receipt (<code>receiptType: credit</code>) <span class="rfc">must</span> reference its origin via <code>headerExtensions["vrs.credit"].originRoot</code>. Per credited line it <span class="rfc">must</span> identify the origin line index, credited quantity and/or amount, and a reason (<code>return</code>, <code>price-adjustment</code>, <code>tax-correction</code>, <code>goodwill</code>). Credit lines derive no entitlement (their <code>saltCommit</code> is a sentinel). Verifiers consuming receipts for expenses, tax, rewards, returns, or credits <span class="rfc">must</span> deduplicate credit documents and <span class="rfc">must</span> reject over-crediting per their policy domain.</p>
+  <p>Origin channels and refs <span class="rfc">should</span> expose <code>vrs/credit-graph/1.0</code>. A credit graph <span class="rfc">must</span> distinguish <code>complete</code>, <code>partial</code>, <code>paginated</code>, <code>unavailable</code>, <code>account-gated</code>, and <code>retention-expired</code> states, and <span class="rfc">must not</span> silently omit old credits while claiming completeness. The graph service is a discovery mechanism and is not trusted for truth; verifiers <span class="rfc">must</span> verify every credit document.</p>
+  <p>Receipts are immutable. Corrections, cancellations, and reissues <span class="rfc">must</span> be represented as additional signed documents, registry state, or external fiscal-status records; an implementation <span class="rfc">must not</span> replace an original receipt with a corrected one while preserving the same proof surface. Three ledgers remain distinct: VRS commercial documents; VRS entitlement registry status; and external fiscal-evidence status (<code>active</code>/<code>cancelled</code>/<code>corrected</code>/<code>reissued</code>/<code>voided</code>/<code>unknown</code>).</p>
+</section>
+
+<!-- 13 REGISTRY STATE -->
+<section id="sec-registry-state" class="normative">
+  <h2><span class="secnum">13.</span> Canonical registry state <span class="label norm">Normative</span></h2>
+  <p>For each ecosystem, VRS state is read from the canonical deployment identified by a signed deployment manifest. Noncanonical registry state <span class="rfc">must not</span> be treated as VRS state. Verifiers, holder agents, and services <span class="rfc">must</span> fetch or bundle signed deployment manifests, verify manifest hashes and signatures, select registry addresses from the accepted manifest, and warn on wrong, unknown, or noncanonical registries. The default state profile is the <strong>Ethereum State Profile</strong> (<a href="#appendix-contracts">Appendix B</a>); the document layer remains chain-neutral.</p>
+</section>
+
+<!-- 14 ENTITLEMENT REGISTRY -->
+<section id="sec-registry" class="normative">
+  <h2><span class="secnum">14.</span> Entitlement registry <span class="label norm">Normative</span></h2>
+  <p>A VRS entitlement registry <span class="rfc">must</span> support: registration; holder, first-holder, status, and issuer lookup; transfer and <code>transferWithAuth</code>; stolen flag/clear; returned/voided state; quantity-accounted bearer returns; and lifecycle event-hash logging. State per entitlement is <code>{ status, holder, firstHolder, issuer }</code> with <code>status ∈ {Unregistered, Active, Returned, Voided, Stolen}</code>.</p>
+  <p><strong>Registration</strong> <span class="rfc">must</span> be consumer-pull (the issuer never transacts) and <span class="rfc">must</span> establish two facts independently:</p>
+  <ul class="compact">
+    <li><strong>Issuer binding.</strong> The recorded issuer <span class="rfc">must</span> be recovered from the issuer's receipt-commitment signature (an <code>IssuerBinding</code> of <code>{receiptRoot, schemaHash, issuerSig, +delegation}</code>), never asserted by the caller.</li>
+    <li><strong>Bearer authority.</strong> The entitlement id <span class="rfc">must</span> be derived as <code>entitlementId(receiptRoot, lineIndex, saltCommit)</code> with <code>saltCommit = keccak256(abi.encode(T_SC, salt))</code> and <code>salt</code> the revealed bearer secret. A party holding only a proof (which carries <code>saltCommit</code>, not <code>salt</code>) therefore cannot register the corresponding id.</li>
+  </ul>
+  <p>Registration <span class="rfc">must not</span> require the productId, quantity, or any line-item group to be disclosed on chain: only the opaque <code>receiptRoot</code> and the issuer identity are written. Because the bearer secret is revealed in the registration call, deployments on a public mempool <span class="rfc">must</span> offer a commit–reveal variant binding the reveal to the registrant (<code>commitment = keccak256(abi.encode(salt, registrant))</code> with a minimum commit age). <code>firstHolder</code> <span class="rfc">must</span> be set once and <span class="rfc">must not</span> change through transfer, recovery, resale, or gift. <code>transferWithAuth</code> lets a third party submit a holder-signed authorisation binding <code>(entitlementId, to, nonce, deadline)</code>. Stolen, returned, and voided values are registry state, not legal determinations. See <a href="#appendix-contracts">Appendix B</a> for the contract interface.</p>
+</section>
+
+<!-- 15 LIFECYCLE -->
+<section id="sec-lifecycle" class="normative">
+  <h2><span class="secnum">15.</span> Lifecycle attestations <span class="label norm">Normative</span></h2>
+  <p>Lifecycle attestations (<code>vrs/lifecycle-attestation/1.0</code>) are signed off-chain records bound to an entitlement, consisting of a shared envelope, a typed event body (service, repair, inspection, owner note, appraisal, recall action, …), a signature, optional attachment hashes, and optional privacy metadata. The registry <span class="rfc">may</span> record <code>recordEvent(entitlementId, attestationHash)</code> where <code>attestationHash = keccak256(JCS(attestation))</code>. The chain <span class="rfc">must not</span> store lifecycle contents, locations, invoices, photos, addresses, or service notes. Holder agents <span class="rfc">must</span> support selective lifecycle disclosure; entitlement transfer does not automatically transfer lifecycle document access. Provenance-grade events <span class="rfc">should</span> carry proven time (anchoring): a record anchored at block <em>B</em> demonstrably existed by <em>B</em>, defeating backdating. The reference verifier marks any history entry that has only asserted time.</p>
+</section>
+
+<!-- 16 MANUFACTURING -->
+<section id="sec-mfg" class="normative">
+  <h2><span class="secnum">16.</span> Manufacturing and serial authentication <span class="label norm">Normative</span></h2>
+  <p>A manufacturer-endorsed line carries a <code>provenance</code> group binding <code>batchId</code> and <code>serialSaltCommit</code> (<code>= keccak256(abi.encode(T_SC, serialSalt))</code>); the group is <code>ABSENT</code> for unendorsed lines. The manufacturer profile defines batch creation, a serial root (membership tree under <code>T_SNODE</code>), mint-allowance/distribution regimes, a serial nullifier (<code>keccak256(T_NULL, batchId, serial, …)</code>), and channel assurance via public allowance traces or off-chain grant chains (<code>vrs/grant-chain/1.0</code>). Authentication reveals the serial salt and sets the nullifier exactly once; a second use of the same serial reverts, which is the cloned-serial signal. On a public mempool a commit–reveal variant <span class="rfc">should</span> be used.</p>
+  <p>VRS serial authentication proves serial/receipt/channel evidence and detects cloned serial use. It does <strong>not</strong> prove physical genuineness. A user interface <span class="rfc">must not</span> label an item "genuine" solely because VRS evidence verifies. Provenance for resale is a three-part check: a Digital Product Passport says what the item is; the entitlement says who holds the rights; the receipt says where and when it was sold.</p>
+</section>
+
+<!-- 17 RECALL -->
+<section id="sec-recall">
+  <h2><span class="secnum">17.</span> Recall notices <span class="label info">Normative profile (draft)</span></h2>
+  <p>A recall notice (<code>vrs/recall-notice/1.0</code>) is a signed document keyed on a manufacturing <code>batchId</code> (with optional finer <code>scope</code>), carrying <code>severity</code>, <code>action</code> (<code>stop-use</code>/<code>return</code>/<code>repair</code>/<code>update</code>), a <code>remedyHash</code> (full text off-chain), and <code>issuedAt</code>. It names no owner and carries no contact detail. The notice hash <span class="rfc">should</span> be anchored under its batch in a notice registry (an event <code>Recalled(batchId, noticeHash, issuerRoot, severity)</code> with <code>batchId</code> indexed), reusing proven-time anchoring. A recall <span class="rfc">should</span> be honoured only if its issuer is accepted for the batch under the verifier's policy (manufacturer root / grant chain, or a regulator attested for a recall role).</p>
+  <p>Holder agents <span class="rfc">should</span> match recalls locally: because each endorsed line binds <code>batchId</code> in its <code>provenance</code> group, the wallet knows the owner's exposure and watches <code>Recalled(batchId)</code> for those batches, fetching the remedy by hash/URI. The manufacturer broadcasts once per batch and learns nothing about who holds the batch; the match reaches the current holder regardless of how many times the item changed hands. VRS supplies the authenticated notice and the broadcast-by-batch primitive; it does not mandate a transport, run a relay, or hold contact details. The anchored notice constitutes constructive notice; opt-in push channels add actual notice. The same mechanism generalises to firmware updates, warranty extensions, and end-of-life notices.</p>
+</section>
+
+<!-- 18 CONSUME -->
+<section id="sec-consume" class="normative">
+  <h2><span class="secnum">18.</span> On-chain consumption <span class="label norm">Normative</span></h2>
+  <p>A stateless verifier contract <span class="rfc">may</span> expose <code>verifyLineItem(HeaderDisclosure, CoreDisclosure, …)</code> returning <code>(receiptRoot, entitlementId, productIdHash, identity)</code> after performing the checks of <a href="#sec-verify">§9.3</a> against its configured attester policy and role. A consuming contract layers its own policy on top. Contracts that grant a once-per-item benefit (a reward, a token-gate, an escrow release) <span class="rfc">must</span> bind consumption to the <code>entitlementId</code> (e.g. a <code>claimed[entId]</code> flag), never to the presenter, so that an item cannot farm the benefit repeatedly as it changes hands. Where current ownership matters, the contract <span class="rfc">must</span> additionally require a holder challenge (<a href="#sec-challenge">§9.4</a>) or read <code>holderOf</code>. Disclosure to a public chain is permanent; a contract <span class="rfc">should not</span> require the <code>commercial</code> group unless the price is genuinely needed.</p>
+</section>
+
+<!-- 20 SERVICES -->
+<section id="sec-services" class="normative">
+  <h2><span class="secnum">19.</span> Service and agent requirements <span class="label norm">Normative</span></h2>
+  <p><strong>Claim/ref service.</strong> A conforming service <span class="rfc">must</span> serve powerless refs; redeem claim tokens one-time or payer-bound; never serve bearer secrets from ref endpoints; expose known credit graphs beside origin receipts; support <code>.vrsbox</code> export where it stores holder data; support ref rotation where refs are shareable capability URLs; and document retention, deletion, recovery, logging, and payer-binding behaviour.</p>
+  <p><strong>Holder agent.</strong> A conforming holder agent <span class="rfc">must</span> preserve document/secret separation; import and export <code>.vrsbox</code>; use canonical deployment manifests before registry writes; support at least one registration path; support holder-challenge signing for registered items; support direct transfer or <code>transferWithAuth</code>; never include bearer secrets in ordinary presentations; support selective lifecycle disclosure; document custody mode, key-recovery limits, and privacy defaults; and distinguish registered holder from legal owner in user-facing contexts. Key recovery is not part of the VRS core; consumer pilots involving registered valuables <span class="rfc">should</span> prefer ERC-1271 smart accounts with explicit, delayed, cancellable recovery, and <span class="rfc">must</span> preserve <code>firstHolder</code> and allow <code>.vrsbox</code> migration.</p>
+</section>
+
+<!-- 21 PRIVACY -->
+<section id="sec-privacy">
+  <h2><span class="secnum">20.</span> Privacy and security considerations <span class="label info">Normative + Informative</span></h2>
+  <p>Implementations <span class="rfc">must</span>: keep bearer secrets out of documents, refs, and ordinary proofs; register entitlements without disclosing productId, quantity, or groups on chain; distinguish key-signature verification from issuer identity resolution; avoid writing sensitive lifecycle contents on chain; distinguish cached/indexed state from verified canonical state; warn on noncanonical registries; support selective disclosure where holder privacy is at risk; and avoid claiming legal title, genuineness, possession, or complete history without external evidence. Implementations <span class="rfc">should</span>: use fresh holder addresses per entitlement where practical; support ref rotation; minimise ref-endpoint logging; use commit–reveal on public mempools; and prefer smart-account recovery for consumer valuables.</p>
+  <p class="note"><span class="n-h">Informative — ownership privacy direction</span> The Ethereum State Profile today stores <code>holder</code>/<code>firstHolder</code> as plaintext addresses and emits transfer events, so a passive observer can reconstruct an item's ownership chain. The planned direction replaces the plaintext mapping with a commitment accumulator plus a nullifier set and routes holders to stealth addresses (with gas paid externally), so that an observer learns only that some entitlement had an event. Residual risks include the linkability of a unique serialised item across presentations, and the non-post-quantum nature of the current primitives. See the design notes in <code>Reference/03-extensions-and-analysis/</code>.</p>
+  <p class="note"><span class="n-h">Informative — privacy and power</span> Verifiable ownership and purchase records are arriving by mandate (digital identity wallets, age verification, e-invoicing, the EU Digital Product Passport). A standard built carelessly would be a surveillance tool. VRS aims to make that infrastructure default to the user's control: the consumer holds the data, discloses selectively, puts nothing on a public ledger, keeps no central registry of who owns what, and pays no fee.</p>
+</section>
+
+<!-- 22 FORWARD -->
+<section id="sec-forward">
+  <h2><span class="secnum">21.</span> Forward compatibility <span class="label info">Informative</span></h2>
+  <p>VRS freezes only the v1 commitment surface and pushes everything else to profiles and version boundaries. Every domain tag is suffixed <code>:v1</code>, so a future suite gets its own namespace; the signed <code>schemaHash</code> gives each receipt an explicit version anchor. The five-group leaf supports predicate disclosure without re-opening unrelated groups; the bearer salt is shaped to double as a zero-knowledge nullifier; issuer identity lives in a manifest that declares its keys (so a new, including post-quantum, signature suite can arrive per issuer). The one genuine tension is that <code>keccak256</code> is convenient on-chain but expensive inside a SNARK; whether ZK predicates must work over existing v1 receipts (STARK-class proving or recursion) or only over a future commitment suite is the decision a v2 would make. Reserved future levers include a SNARK-friendly mirror commitment, an accumulator-shaped attester set, per-circuit domain tags, and cross-receipt aggregation.</p>
+</section>
+
+<!-- APPENDIX A VECTORS -->
+<section id="appendix-vectors" class="normative">
+  <h2><span class="secnum">Appendix A.</span> Worked example and test vectors <span class="label norm">Normative</span></h2>
+  <p>A two-line receipt: line 0 is loose apples (no warranty, no provenance); line 1 is a manufacturer-endorsed toaster. Inputs and all derived values are below; a conforming implementation <span class="rfc">must</span> reproduce them exactly. Header issuer <code>0x00000000000000000000000000000000000000A1</code>, <code>issuedAt = 1790000000</code>, <code>receiptType = 0</code>, undelegated (<code>delegationHash = ABSENT</code>).</p>
+  <h4>A.1 Inputs</h4>
+  <table>
+    <tr><th>Field</th><th>Line 0 — apples</th><th>Line 1 — toaster</th></tr>
+    <tr><td><code>lineIndex</code></td><td>0</td><td>1</td></tr>
+    <tr><td><code>productId</code></td><td><code>txt:Apples, loose</code></td><td><code>(01)09506000134352(21)SER1234</code></td></tr>
+    <tr><td><code>qtyMilli</code></td><td>535</td><td>1000</td></tr>
+    <tr><td><code>commercial</code></td><td>299 · 700 bps · EUR</td><td>4999 · 1900 bps · EUR</td></tr>
+    <tr><td><code>warranty</code></td><td><em>absent</em></td><td><code>gln:4012345000009</code> · 730 days</td></tr>
+    <tr><td><code>provenance</code></td><td><em>absent</em></td><td>batchId + serialSaltCommit</td></tr>
+  </table>
+  <h4>A.2 Derived values</h4>
+<pre><code>// salt commitments  (salt0 = keccak256("salt-apples"), salt1 = keccak256("salt-toaster"))
+sc0              = 0x39c8c9fee863d4cb86c9440505660b5a8f3168c2333cd0b54b22e6d572a4e352
+sc1              = 0xf305f1fa6acdc6447fd91957d44133a768a40a15ec7668a31e247851deb491a1
+
+// line 0 (apples): commercial present; warranty/descriptive/provenance ABSENT
+core0            = 0xa78dee4b1640b8aa26d648c720861094a1995208dfaf7f9650e9a7a7ebb35812
+comm0            = 0xadfb0349b767de270ca8cdc94dbff174ed022fad76c25f41d8550130f64f59b3
+item0            = 0xcb865da923773d20c73b4ddf5fafb4f5c2eecb32aacb09fa81743fb7f6ccc192
+
+// line 1 (toaster): all five groups present
+core1            = 0x21042e0b4bc4e2a189a845a4cf7e252dd6cd42b156cfc9d5a1fda55fd511f9d1
+comm1            = 0x7bfebb74ddbd0fbf527074a0f2cec9e75a6cb5258226a35d8ae3c9de6b64739d
+warr1            = 0x753fda7cb4f5a47bdc8c4bfcdb95f7b755a04ce1cf713bb564dbf6d9faae0961
+desc1            = 0x4259954ceb3963fd57c5c330995802f25cfdc903e8396266c453534dbb826364
+batchId          = 0x33bdafc4fb2e72e30a329411a1f8fc1a4beeb4b4a6cfc22fc9914961ab29679f
+serialSaltCommit = 0x8b8bb26dda52dc0b732097526c876b03529e4b361882a0441060a6ac6049a54a
+prov1            = 0xb2dbb672fb771a06a08d30772d621efa377a67609d1542a32e72ef9ebbf61c33
+item1            = 0x9e327d4026fac89c971f3f73e3c3fca9bcfd52aabfdac542a4662d0cfa5a6697
+
+// header + tree (4 leaves: header, item0, item1, PAD)
+fiscalHash       = 0x8c58af25d19af53f6139ce81f683c35fa8e839c491824ab75628ca508180498a
+headerLeaf       = 0xd38a9ba17d8ff6a2ff7463d7607a2cc0e83a3a6f1e246b517dc4474e27e7c1fc
+n01 = node(headerLeaf, item0) = 0x6bcbb924a70cd644b98692e95099e3c14b317f09af7c42493527aa3666f06158
+n23 = node(item1, PAD)        = 0x472d9d4799022fdad3c1dbf8da803ed1598ebb4a87c8a4af188a33c4b24e3f3d
+receiptRoot = node(n01, n23)  = 0x4881046b77385af41d3b87e28fdfc1539e390956eba11046f44d5397ff8338e9
+
+// signing + entitlement
+schemaHash       = 0xe18b2d7e5b1a7d88d3e0f0c05ba5cb54c52290be82766537a0480bee6c456993  // keccak256("vrs/receipt/1.0")
+commitmentDigest = 0xd07093789d5cccf67614603bd751ab8c5006b093a6e67a91823bde9430ab9dc0  // issuer signs this
+entitlementId(toaster, lineIndex 1) = 0x47cc2d0c6e409c69d9f52be15af626038008bce8f57e6b83cec5c1f5b8cb979d
+
+// membership proof for the toaster (leaf index 2, lineIndex 1)
+itemPath   = [ PAD, n01 ]      // folds: node(item1,PAD)=n23, then node(n01,n23)=receiptRoot
+headerPath = [ item0, n23 ]</code></pre>
+  <p class="small">These values are produced by the reference <code>VRSLib</code> construction; the apples line uses <code>taxRateBps = 700</code>, the toaster <code>1900</code>. The receipt root is issuer-dependent through the header leaf; line-item group hashes are issuer-independent. The full corpus — every tag's 32-byte value, a <strong>signed</strong> receipt with a published test key, a <strong>delegated</strong> receipt, serial/nullifier and registry digests, and negative test cases — is in the <a href="04-vrs-conformance-vectors.html">Conformance Vectors</a>.</p>
+</section>
+
+<!-- APPENDIX B CONTRACTS -->
+<section id="appendix-contracts" class="normative">
+  <h2><span class="secnum">Appendix B.</span> Reference contract interfaces <span class="label norm">Normative (Ethereum State Profile)</span></h2>
+  <p>The canonical Ethereum State Profile comprises the following contracts. Interfaces are abbreviated here; the full canonical Solidity interfaces, generated JSON ABIs, and an implementation-agnostic conformance test suite are in <code>Publication/contracts/</code> (selectors verified against, and the suite validated 13/13 against, the reference Solidity in <code>Reference/04-reference-contracts/src</code>).</p>
+<pre><code>// Issuer identity and proven time
+AttestationRegistry.attest(address subject, bytes32 role, uint64 validFrom, uint64 validUntil)
+AttestationRegistry.revoke(address subject, bytes32 role)
+AttestationRegistry.isAttested(address subject, bytes32 role, address attester, uint64 at) -&gt; bool
+AnchorRegistry.anchor(bytes32 root);   AnchorRegistry.anchoredAt(bytes32 root) -&gt; uint64
+
+// Ownership, status, lifecycle  (Status: Unregistered|Active|Returned|Voided|Stolen)
+EntitlementRegistry.register(IssuerBinding b, uint256 lineIndex, bytes32 salt)
+EntitlementRegistry.registerCommitted(IssuerBinding b, uint256 lineIndex, bytes32 salt)  // commit–reveal
+EntitlementRegistry.transfer(bytes32 id, address to)
+EntitlementRegistry.transferWithAuth(bytes32 id, address to, uint64 deadline, bytes holderSig)
+EntitlementRegistry.recordEvent(bytes32 id, bytes32 attestationHash)
+EntitlementRegistry.flagStolen / clearStolen / markReturned / markReturnedBearer / void
+EntitlementRegistry.holderOf / firstHolderOf / statusOf (bytes32 id)
+
+// Stateless proof verifier (policy: accepted attesters + role)
+ReceiptVerifier(IAttestationRegistry, IAnchorRegistry, bytes32 role, address[] attesters)
+ReceiptVerifier.verifyLineItem(HeaderDisclosure h, CoreDisclosure c, …)
+   -&gt; (bytes32 receiptRoot, bytes32 entId, bytes32 productIdHash, address identity)
+
+// Manufacturer authenticity (set-once serial nullifier)
+MintAllowanceRegistry.authenticate(...) / authenticateCommitted(...)
+MintAllowanceRegistry.nullifierUsed(bytes32) -&gt; bool;  boundEntitlement(bytes32) -&gt; bytes32
+
+// Recall notices (draft profile)
+NoticeRegistry.recall(bytes32 batchId, bytes32 noticeHash, uint8 severity)
+   emits Recalled(bytes32 indexed batchId, bytes32 noticeHash, address indexed issuerRoot, uint8 severity)</code></pre>
+</section>
+
+<!-- APPENDIX C REFERENCES -->
+<section id="appendix-refs">
+  <h2><span class="secnum">Appendix C.</span> References</h2>
+  <h3>Normative references</h3>
+  <dl class="terms">
+    <dt id="ref-rfc2119">[RFC 2119]</dt><dd>Key words for use in RFCs to Indicate Requirement Levels. IETF, 1997.</dd>
+    <dt id="ref-rfc8174">[RFC 8174]</dt><dd>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words. IETF, 2017.</dd>
+    <dt id="ref-jcs">[RFC 8785]</dt><dd>JSON Canonicalization Scheme (JCS). IETF, 2020.</dd>
+    <dt id="ref-eip712">[EIP-712]</dt><dd>Typed structured data hashing and signing. Ethereum Improvement Proposals.</dd>
+    <dt id="ref-erc1271">[ERC-1271]</dt><dd>Standard Signature Validation Method for Contracts. Ethereum Improvement Proposals.</dd>
+    <dt id="ref-keccak">[KECCAK]</dt><dd>The Keccak-256 hash function as used by Ethereum.</dd>
+    <dt id="ref-gs1">[GS1]</dt><dd>GS1 General Specifications (GTIN, element strings, GS1 Digital Link).</dd>
+  </dl>
+  <h3>Informative references</h3>
+  <dl class="terms">
+    <dt>[VRS-Overview]</dt><dd><a href="01-vrs-overview.html">Verifiable Receipt Standard — Overview</a> (primary informative source).</dd>
+    <dt>[VRS-Data-Formats]</dt><dd><a href="03-vrs-data-formats.html">VRS Data Formats</a> — canonical JSON schemas for every document type.</dd>
+    <dt>[VRS-Conformance-Vectors]</dt><dd><a href="04-vrs-conformance-vectors.html">VRS Conformance Vectors</a> — byte-exact test fixtures (tags, signed/delegated receipts, serial, registry, negatives).</dd>
+    <dt>[VRS-Reference]</dt><dd><code>Reference/10-formal-specification/vrs-formal-specification.md</code> and the design notes under <code>Reference/03-extensions-and-analysis/</code> (recall, private ownership transfer, GS1 value coverage, threat model).</dd>
+    <dt>[EIP-5564 / EIP-6538]</dt><dd>Stealth addresses and the stealth meta-address registry.</dd>
+    <dt>[ESPR-DPP]</dt><dd>EU Ecodesign for Sustainable Products Regulation; Digital Product Passport.</dd>
+    <dt>[W3C-VC]</dt><dd>Verifiable Credentials Data Model 2.0; SD-JWT VC (IETF draft).</dd>
+    <dt>[EN 16931 / Peppol]</dt><dd>European e-invoicing semantic model and the Peppol BIS Billing specification.</dd>
+  </dl>
+</section>
+
+<hr>
+<p class="small">This specification is a draft and is unaudited. It is published under an open, royalty-free model: no protocol fee, no token, no rent on the core. Comments and conformance reports are welcome.</p>
+
+</div>
+</body>
+</html>

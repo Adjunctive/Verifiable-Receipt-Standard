@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VRS Contracts — ABIs &amp; Conformance Tests</title>
+<style>
+  :root{ --bg:#faf9f5; --surface:#fff; --ink:#2c2c2a; --muted:#5f5e5a; --hint:#888780;
+    --border:rgba(0,0,0,.13); --rule:rgba(0,0,0,.07); --accent:#534ab7;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#262624; --surface:#30302e; --ink:#e8e6dd; --muted:#b4b2a9;
+    --hint:#888780; --border:rgba(255,255,255,.15); --rule:rgba(255,255,255,.08); --accent:#afa9ec; } }
+  *{box-sizing:border-box;} body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;}
+  .wrap{max-width:46rem;margin:0 auto;padding:3.5rem 1.5rem 6rem;}
+  a{color:var(--accent);}
+  .back{font-size:.85rem;}
+  h1{font-size:1.8rem;letter-spacing:-.02em;margin:.6rem 0 .3rem;}
+  .lede{color:var(--muted);margin:0 0 1.8rem;}
+  h2{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--hint);margin:2rem 0 .6rem;}
+  ul{list-style:none;padding:0;margin:0;}
+  li{margin:.3rem 0;}
+  li a{font-family:var(--mono);font-size:.92rem;}
+  .d{color:var(--muted);font-size:.85rem;}
+  .note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:8px;padding:.8rem 1rem;font-size:.92rem;color:var(--muted);margin:1.4rem 0;}
+  code{font-family:var(--mono);font-size:.85em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="back"><a href="../index.html">← VRS</a></p>
+  <h1>VRS Contracts</h1>
+  <p class="lede">Canonical contract ABIs and an implementation-agnostic conformance suite for the VRS Ethereum State Profile. <strong>ABIs and tests only — not an implementation.</strong></p>
+
+  <div class="note">Interface selectors are verified to match the reference implementation, and the conformance suite has been validated 13/13 against it. See the <a href="README.md">README</a> and <a href="../02-vrs-specification.html#appendix-contracts">Specification Appendix B</a>.</div>
+
+  <h2>Interfaces (Solidity — the ABI)</h2>
+  <ul>
+    <li><a href="interfaces/VRSTypes.sol">VRSTypes.sol</a> <span class="d">— structs &amp; enums (normative field order/types)</span></li>
+    <li><a href="interfaces/IEntitlementRegistry.sol">IEntitlementRegistry.sol</a> <span class="d">— ownership / status / lifecycle</span></li>
+    <li><a href="interfaces/IAttestationRegistry.sol">IAttestationRegistry.sol</a> <span class="d">— issuer identity</span></li>
+    <li><a href="interfaces/IAnchorRegistry.sol">IAnchorRegistry.sol</a> <span class="d">— proven time</span></li>
+    <li><a href="interfaces/IReceiptVerifier.sol">IReceiptVerifier.sol</a> <span class="d">— stateless proof verifier</span></li>
+    <li><a href="interfaces/IMintAllowanceRegistry.sol">IMintAllowanceRegistry.sol</a> <span class="d">— batches &amp; serial nullifiers</span></li>
+    <li><a href="interfaces/INoticeRegistry.sol">INoticeRegistry.sol</a> <span class="d">— recall notices (draft)</span></li>
+  </ul>
+
+  <h2>JSON ABIs</h2>
+  <ul>
+    <li><a href="abi/IEntitlementRegistry.json">IEntitlementRegistry.json</a></li>
+    <li><a href="abi/IAttestationRegistry.json">IAttestationRegistry.json</a></li>
+    <li><a href="abi/IAnchorRegistry.json">IAnchorRegistry.json</a></li>
+    <li><a href="abi/IReceiptVerifier.json">IReceiptVerifier.json</a></li>
+    <li><a href="abi/IMintAllowanceRegistry.json">IMintAllowanceRegistry.json</a></li>
+    <li><a href="abi/INoticeRegistry.json">INoticeRegistry.json</a></li>
+  </ul>
+
+  <h2>Conformance suite</h2>
+  <ul>
+    <li><a href="test/VRSConformance.t.sol">test/VRSConformance.t.sol</a> <span class="d">— abstract Foundry suite; subclass with deploy hooks</span></li>
+    <li><a href="foundry.toml">foundry.toml</a> · <a href="README.md">README.md</a></li>
+  </ul>
+</div>
+</body>
+</html>

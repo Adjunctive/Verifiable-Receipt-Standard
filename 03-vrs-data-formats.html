@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VRS Data Formats — Canonical Document Schemas</title>
+<style>
+  :root{ --bg:#fff; --ink:#1a1a1a; --muted:#555; --hint:#777; --rule:rgba(0,0,0,.12); --border:rgba(0,0,0,.16);
+    --accent:#005a9c; --accentbg:#eef4fb; --code:#f4f4f2; --good:#0a6b3b; --warn:#8a5a00; --warnbg:#fdf6e8;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#15171a; --ink:#e7e7e3; --muted:#aeb0b3; --hint:#8a8d90;
+    --rule:rgba(255,255,255,.14); --border:rgba(255,255,255,.2); --accent:#6fb3e6; --accentbg:#16242f;
+    --code:#1d2024; --good:#73d39b; --warn:#e0b25e; --warnbg:#241f12; } }
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.6;font-size:17px;}
+  .wrap{max-width:52rem;margin:0 auto;padding:2.5rem 1.4rem 6rem;}
+  header.doc{border-bottom:3px double var(--rule);padding-bottom:1.4rem;margin-bottom:1.4rem;}
+  h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .3rem;}
+  .subtitle{font-size:1.05rem;color:var(--muted);margin:0;}
+  .docstatus{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);background:var(--accentbg);border:1px solid var(--accent);border-radius:4px;padding:.25rem .55rem;}
+  h2,h3{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.25;margin:2.2rem 0 .6rem;scroll-margin-top:1rem;}
+  h2{font-size:1.45rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;}
+  h3{font-size:1.12rem;}
+  a{color:var(--accent);}
+  code,.mono{font-family:var(--mono);font-size:.86em;}
+  p code,li code,td code{background:var(--code);padding:.05em .35em;border-radius:3px;}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;}
+  pre code{background:none;padding:0;}
+  table{border-collapse:collapse;width:100%;font-size:.88rem;margin:1rem 0;font-family:ui-sans-serif,system-ui,sans-serif;}
+  th,td{border:1px solid var(--border);padding:.4rem .55rem;text-align:left;vertical-align:top;}
+  th{background:var(--accentbg);}
+  .rfc{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-variant:small-caps;font-size:.92em;}
+  .req{color:var(--accent);font-weight:700;} .opt{color:var(--hint);}
+  .note{border:1px solid var(--border);border-left:4px solid var(--accent);background:var(--code);border-radius:4px;padding:.7rem 1rem;margin:1.1rem 0;font-size:.95rem;}
+  .note .n-h{font-family:ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.35rem;}
+  nav.toc{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.9rem;background:var(--code);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;}
+  nav.toc .toc-h{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--hint);margin-bottom:.6rem;}
+  nav.toc ol{margin:0;padding-left:1.3rem;columns:2;column-gap:1.6rem;} nav.toc li{margin:.16rem 0;} nav.toc a{text-decoration:none;}
+  .secnum{color:var(--hint);font-weight:400;}
+  .committed{font-size:.85rem;color:var(--muted);}
+  .small{font-size:.85rem;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <p class="docstatus">VRS 1.0 — Companion to the Specification</p>
+  <h1>VRS Data Formats</h1>
+  <p class="subtitle">Canonical JSON schemas for every VRS document, with worked examples</p>
+</header>
+
+<section id="intro">
+  <h2>Introduction</h2>
+  <p>This document specifies the on-the-wire JSON for every VRS document type referenced by the <a href="02-vrs-specification.html">VRS Specification</a>. The specification pins the <em>cryptographic commitments</em> (the hash inputs in §6–§7); this document pins the <em>serialized documents</em> that carry those values and the surrounding metadata. The two together let independent implementations produce byte-identical artifacts.</p>
+  <div class="note"><span class="n-h">What is committed, and what is not</span> The receipt root commits to <strong>only</strong> the header-leaf fields (<code>issuer</code>, <code>issuedAt</code>, <code>receiptType</code>, <code>fiscalHash</code>, <code>delegationHash</code>) and the per-line group hashes (<code>core</code>, <code>commercial</code>, <code>warranty</code>, <code>descriptive</code>, <code>provenance</code>). Everything else in a receipt document — <code>receiptId</code>, <code>payment</code>, <code>payer</code>, totals, free-text descriptive contents, and any fiscal payload — is committed <em>indirectly</em> (via <code>fiscalHash</code>, <code>descriptiveHash</code>, or <code>termsHash</code>) or is purely informational routing data. A verifier <span class="rfc">must</span> treat unverifiable informational fields as untrusted hints.</p></div>
+  <h3>Conventions</h3>
+  <ul>
+    <li>JSON is canonicalised with JCS (<a href="02-vrs-specification.html#ref-jcs">RFC 8785</a>) wherever a hash is taken over it.</li>
+    <li>Integers used in hashing or protocol state are <strong>decimal strings</strong>; binary values are lowercase <code>0x</code> hex.</li>
+    <li><code>ABSENT</code> denotes the absent-sentinel hash (<a href="02-vrs-specification.html#sec-tags">spec §6.1</a>); a JSON <code>null</code> for an optional group maps to <code>ABSENT</code> in the commitment.</li>
+    <li>Column <strong>R</strong>: <span class="req">●</span> = required, <span class="opt">○</span> = optional.</li>
+  </ul>
+  <nav class="toc"><div class="toc-h">Documents</div><ol>
+    <li><a href="#receipt">Receipt</a></li>
+    <li><a href="#secrets">Bearer secrets</a></li>
+    <li><a href="#proof">Proof</a></li>
+    <li><a href="#presentation">Presentation &amp; holder challenge</a></li>
+    <li><a href="#credit">Credit document</a></li>
+    <li><a href="#creditgraph">Credit graph</a></li>
+    <li><a href="#lifecycle">Lifecycle attestation</a></li>
+    <li><a href="#recall">Recall notice</a></li>
+    <li><a href="#grant">Grant chain</a></li>
+    <li><a href="#manifest">Issuer manifest</a></li>
+    <li><a href="#deployment">Deployment manifest</a></li>
+    <li><a href="#refclaim">Ref / claim responses</a></li>
+    <li><a href="#vrsbox">.vrsbox archive</a></li>
+  </ol></nav>
+</section>
+
+<!-- RECEIPT -->
+<section id="receipt">
+  <h2><span class="secnum">1.</span> Receipt — <code>vrs/receipt/1.0</code></h2>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>R</th><th>Notes</th></tr>
+    <tr><td><code>schema</code></td><td>string</td><td class="req">●</td><td><code>vrs/receipt/1.0</code></td></tr>
+    <tr><td><code>receiptType</code></td><td>string|int</td><td class="req">●</td><td><code>sale</code>/<code>delivery</code>/<code>service</code>/<code>credit</code> (0–3). Committed in the header leaf as <code>uint8</code>.</td></tr>
+    <tr><td><code>receiptId</code></td><td>string</td><td class="opt">○</td><td>Issuer-scoped id. Informational (not committed).</td></tr>
+    <tr><td><code>issuer.address</code></td><td>0x-address</td><td class="req">●</td><td>The signing key (operational key when delegated). Committed in the header leaf.</td></tr>
+    <tr><td><code>issuedAt</code></td><td>decimal string</td><td class="req">●</td><td>Unix seconds. Committed (<code>uint64</code>).</td></tr>
+    <tr><td><code>delegation</code></td><td>object|null</td><td class="opt">○</td><td><code>{rootIdentity, role, validFrom, validUntil, rootSig}</code>; <code>null</code> ⇒ <code>delegationHash = ABSENT</code> (<a href="02-vrs-specification.html#sec-identity">§8</a>).</td></tr>
+    <tr><td><code>fiscalHash</code></td><td>0x32</td><td class="opt">○</td><td>Commits the fiscal-evidence descriptor, or <code>ABSENT</code> (<a href="02-vrs-specification.html#sec-fiscal">§7.5</a>). Committed.</td></tr>
+    <tr><td><code>payer</code>, <code>payment</code>, totals</td><td>object</td><td class="opt">○</td><td>Fiscal/accounting context; committed only via <code>fiscalHash</code> when present.</td></tr>
+    <tr><td><code>lineItems[]</code></td><td>array</td><td class="req">●</td><td>Each line carries the five groups (below). Line <code>i</code> is leaf <code>i+1</code>.</td></tr>
+    <tr><td><code>lineItems[].core</code></td><td>object</td><td class="req">●</td><td><code>{productId, qtyMilli, saltCommit}</code>. <code>core</code> <span class="rfc">must not</span> contain the salt.</td></tr>
+    <tr><td><code>lineItems[].commercial</code></td><td>object|null</td><td class="opt">○</td><td><code>{unitPriceMinor, taxRateBps, currency}</code>.</td></tr>
+    <tr><td><code>lineItems[].warranty</code></td><td>object|null</td><td class="opt">○</td><td><code>{warrantor, durationDays, termsHash}</code>.</td></tr>
+    <tr><td><code>lineItems[].descriptive</code></td><td>object|null</td><td class="opt">○</td><td>Free-form object; committed as <code>keccak256(JCS(descriptive))</code>.</td></tr>
+    <tr><td><code>lineItems[].provenance</code></td><td>object|null</td><td class="opt">○</td><td><code>{batchId, serialSaltCommit}</code> (manufacturer endorsement, <a href="02-vrs-specification.html#sec-mfg">§16</a>).</td></tr>
+    <tr><td><code>headerExtensions</code></td><td>object</td><td class="opt">○</td><td>Namespaced extensions (e.g. <code>vrs.fiscal</code>, <code>vrs.credit</code>).</td></tr>
+    <tr><td><code>receiptRoot</code></td><td>0x32</td><td class="req">●</td><td>Merkle root (<a href="02-vrs-specification.html#sec-tree">§7.4</a>). Recomputed by the verifier; the document value is a convenience.</td></tr>
+    <tr><td><code>schemaHash</code></td><td>0x32</td><td class="req">●</td><td><code>keccak256("vrs/receipt/1.0")</code>; signed with the root.</td></tr>
+    <tr><td><code>signature</code></td><td>object</td><td class="req">●</td><td><code>{signer, signedDigest, signature}</code> over <code>commitmentDigest(receiptRoot, schemaHash)</code> (<a href="02-vrs-specification.html#sec-sign">§6.4</a>).</td></tr>
+  </table>
+  <p class="small">Example: the two-line apples + toaster receipt (issuer <code>0x…00A1</code>); the derived values match <a href="04-vrs-conformance-vectors.html">Conformance Vectors §4</a>.</p>
+<pre><code>{
+  "schema": "vrs/receipt/1.0",
+  "receiptType": "sale",
+  "receiptId": "order-100045",
+  "issuer": { "address": "0x00000000000000000000000000000000000000A1" },
+  "issuedAt": "1790000000",
+  "delegation": null,
+  "fiscalHash": "0x8c58af25d19af53f6139ce81f683c35fa8e839c491824ab75628ca508180498a",
+  "lineItems": [
+    { "core": { "productId": "txt:Apples, loose", "qtyMilli": "535",
+                "saltCommit": "0x39c8c9fee863d4cb86c9440505660b5a8f3168c2333cd0b54b22e6d572a4e352" },
+      "commercial": { "unitPriceMinor": "299", "taxRateBps": "700", "currency": "EUR" },
+      "warranty": null, "descriptive": null, "provenance": null },
+    { "core": { "productId": "(01)09506000134352(21)SER1234", "qtyMilli": "1000",
+                "saltCommit": "0xf305f1fa6acdc6447fd91957d44133a768a40a15ec7668a31e247851deb491a1" },
+      "commercial": { "unitPriceMinor": "4999", "taxRateBps": "1900", "currency": "EUR" },
+      "warranty": { "warrantor": "gln:4012345000009", "durationDays": "730",
+                    "termsHash": "0x<keccak256(JCS(terms))>" },
+      "descriptive": { "title": "ACME Toaster" },
+      "provenance": { "batchId": "0x33bdafc4fb2e72e30a329411a1f8fc1a4beeb4b4a6cfc22fc9914961ab29679f",
+                      "serialSaltCommit": "0x8b8bb26dda52dc0b732097526c876b03529e4b361882a0441060a6ac6049a54a" } }
+  ],
+  "headerExtensions": {},
+  "receiptRoot": "0x4881046b77385af41d3b87e28fdfc1539e390956eba11046f44d5397ff8338e9",
+  "schemaHash": "0xe18b2d7e5b1a7d88d3e0f0c05ba5cb54c52290be82766537a0480bee6c456993",
+  "signature": { "signer": "0x00000000000000000000000000000000000000A1",
+                 "signedDigest": "0xd07093789d5cccf67614603bd751ab8c5006b093a6e67a91823bde9430ab9dc0",
+                 "signature": "0x<65-byte ECDSA>" }
+}</code></pre>
+</section>
+
+<!-- SECRETS -->
+<section id="secrets">
+  <h2><span class="secnum">2.</span> Bearer secrets — <code>vrs/secrets/1.0</code></h2>
+  <p>Travels separately from the receipt and <span class="rfc">must not</span> appear in documents, refs, or ordinary proofs. Each entry reveals a preimage whose commitment is in the receipt or provenance group.</p>
+<pre><code>{
+  "schema": "vrs/secrets/1.0",
+  "receiptId": "order-100045",
+  "secrets": [
+    { "lineIndex": "0", "salt": "0x63968191ce601b875cf1255410336c015731dd795bd34bdb4e56f5a633ec939f" },
+    { "lineIndex": "1", "salt": "0x1aef9141b419aa03af6f5331cd870c33c18e13183a9b7113d51dff93f58c9759" },
+    { "batchId": "0x33bdafc4…ab29679f", "serial": "SER1234",
+      "serialSalt": "0x67854b809ea195362b018634ce712ab34c676bcadda791b450aa825c9cc7e742" }
+  ]
+}</code></pre>
+</section>
+
+<!-- PROOF -->
+<section id="proof">
+  <h2><span class="secnum">3.</span> Proof — <code>vrs/proof/1.0</code></h2>
+  <p>A single-line selective-disclosure proof. <code>disclosureLevel</code> is one of <code>full</code> / <code>core</code> / <code>core+&lt;group&gt;</code> / <code>zk</code> (<a href="02-vrs-specification.html#sec-modes">§9.1</a>). Disclosed groups supply preimage fields; undisclosed groups supply their group hash (or <code>ABSENT</code>). <code>headerPath</code> and <code>itemPath</code> are equal-length sibling arrays processed per <a href="02-vrs-specification.html#sec-proofproc">§6.5</a>.</p>
+<pre><code>{
+  "schema": "vrs/proof/1.0",
+  "disclosureLevel": "core+commercial",
+  "header": { "issuer": "0x…00A1", "issuedAt": "1790000000", "receiptType": "sale",
+              "fiscalHash": "0x8c58af25…8180498a", "delegationHash": "ABSENT",
+              "issuerSig": "0x<65-byte>", "headerPath": ["0x<item0>", "0x<n23>"],
+              "rootIdentity": "0x0000…0000", "delegRole": "0x00..00",
+              "delegValidFrom": "0", "delegValidUntil": "0", "rootSig": "0x" },
+  "line": { "lineIndex": "1", "core": { "productId": "(01)09506000134352(21)SER1234",
+              "qtyMilli": "1000", "saltCommit": "0xf305f1fa…deb491a1" },
+            "commercial": { "unitPriceMinor": "4999", "taxRateBps": "1900", "currency": "EUR" },
+            "warrantyHash": "0x753fda7c…faae0961", "descriptiveHash": "0x4259954c…bb826364",
+            "provenanceHash": "0xb2dbb672…bbf61c33", "itemPath": ["0x<PAD>", "0x<n01>"] },
+  "receiptRoot": "0x4881046b…ff8338e9"
+}</code></pre>
+</section>
+
+<!-- PRESENTATION -->
+<section id="presentation">
+  <h2><span class="secnum">4.</span> Presentation and holder challenge</h2>
+  <p>A presentation bundles a proof, a registry read, and (for a registered entitlement) a holder challenge. The challenge is signed by the current holder over an EIP-712 typed structure; the recommended type is:</p>
+<pre><code>HolderChallenge(bytes32 entitlementId,bytes32 nonce,string audience,uint64 expiresAt)
+// signed by holderOf(entitlementId); verified by EOA recovery or ERC-1271.
+
+{
+  "schema": "vrs/presentation/warranty/1.0",
+  "proof": { "disclosureLevel": "core+warranty", "lineIndex": "1", "groups": ["core","warranty"] },
+  "holderChallenge": { "entitlementId": "0x47cc2d0c…b8cb979d", "nonce": "0x9f2c4a…",
+                       "audience": "warranty", "expiresAt": "1790200300",
+                       "holderSig": "0x<EOA or ERC-1271 signature>" },
+  "registryRead": { "status": "Active", "holder": "0x3333…3333" }
+}</code></pre>
+  <p class="small">The <code>vrs/presentation/resale/1.0</code> variant adds <code>lifecycle[]</code> (selected attestation hashes + documents) and a <code>transferAuth</code> object (<a href="#refclaim">§14</a> registry digests).</p>
+</section>
+
+<!-- CREDIT -->
+<section id="credit">
+  <h2><span class="secnum">5.</span> Credit document</h2>
+  <p>A credit is a full <code>vrs/receipt/1.0</code> of <code>receiptType: credit</code> that references its origin via <code>headerExtensions["vrs.credit"].originRoot</code>. Credit lines derive no entitlement; their <code>saltCommit</code> is the sentinel string <code>"CREDIT_SENTINEL"</code>.</p>
+<pre><code>{
+  "schema": "vrs/receipt/1.0", "receiptType": "credit", "receiptId": "credit-200007",
+  "issuer": { "address": "0x…00A1" }, "issuedAt": "1790100000",
+  "headerExtensions": { "vrs.credit": { "originRoot": "0x4881046b…ff8338e9", "originReceiptId": "order-100045" } },
+  "lineItems": [ { "core": { "productId": "(01)09506000134352(21)SER1234", "qtyMilli": "1000",
+      "saltCommit": "CREDIT_SENTINEL" },
+      "descriptive": { "lineExtensions": { "vrs.credit": { "originLineIndex": "1",
+        "creditedQtyMilli": "1000", "creditedAmountMinor": "4999", "reason": "return" } } } } ],
+  "signature": { "signer": "0x…00A1", "signature": "0x<65-byte>" }
+}</code></pre>
+</section>
+
+<!-- CREDIT GRAPH -->
+<section id="creditgraph">
+  <h2><span class="secnum">6.</span> Credit graph — <code>vrs/credit-graph/1.0</code></h2>
+  <p><code>completeness</code> <span class="rfc">must</span> be one of <code>complete</code> / <code>partial</code> / <code>paginated</code> / <code>unavailable</code> / <code>account-gated</code> / <code>retention-expired</code> (<a href="02-vrs-specification.html#sec-credit">§12</a>).</p>
+<pre><code>{
+  "schema": "vrs/credit-graph/1.0",
+  "originRoot": "0x4881046b…ff8338e9",
+  "completeness": "complete",
+  "credits": [ { "receiptId": "credit-200007", "originLineIndex": "1",
+                 "creditedAmountMinor": "4999", "reason": "return",
+                 "documentRef": "vrs1:ref:https://receipts.example/ref/credit-200007" } ]
+}</code></pre>
+</section>
+
+<!-- LIFECYCLE -->
+<section id="lifecycle">
+  <h2><span class="secnum">7.</span> Lifecycle attestation — <code>vrs/lifecycle-attestation/1.0</code></h2>
+  <p>Bound to an entitlement; only <code>attestationHash = keccak256(JCS(attestation))</code> is anchored on chain (<a href="02-vrs-specification.html#sec-lifecycle">§15</a>). Contents stay off chain.</p>
+<pre><code>{
+  "schema": "vrs/lifecycle-attestation/1.0",
+  "entitlementId": "0x47cc2d0c…b8cb979d",
+  "eventType": "service",                 // service|repair|inspection|owner-note|recall|appraisal
+  "issuer": "0x6666…6666",                // attester key
+  "issuedAt": "1790200000",
+  "summaryHash": "0x<keccak256(JCS(summary))>",
+  "attachments": [ { "type": "service-report", "hash": "0x<keccak256(file)>" } ],
+  "attestationHash": "0x<keccak256(JCS(this object without attestationHash+signature))>",
+  "signature": "0x<attester signature>"
+}</code></pre>
+</section>
+
+<!-- RECALL -->
+<section id="recall">
+  <h2><span class="secnum">8.</span> Recall notice — <code>vrs/recall-notice/1.0</code></h2>
+  <p>Keyed on a manufacturing <code>batchId</code>, not on a holder (<a href="02-vrs-specification.html#sec-recall">§17</a>). The notice hash is anchored via <code>NoticeRegistry.recall(batchId, noticeHash, severity)</code>.</p>
+<pre><code>{
+  "schema": "vrs/recall-notice/1.0",
+  "recallId": "recall-7",
+  "issuer": { "address": "0x5555…5555" },     // manufacturer/authority root, attested for the batch
+  "batchId": "0x33bdafc4…ab29679f",
+  "scope": "batch",                            // batch | serial-range | serial-list
+  "productClass": "ACME Toaster",
+  "severity": "safety",                        // safety | advisory | informational
+  "action": "stop-use",                        // stop-use | return | repair | update
+  "remedyHash": "0x<keccak256(JCS(remedy))>",
+  "remedyURI": "https://acme.example/recall/7",
+  "issuedAt": "1790500000",
+  "signature": "0x<issuer signature>"
+}</code></pre>
+</section>
+
+<!-- GRANT CHAIN -->
+<section id="grant">
+  <h2><span class="secnum">9.</span> Grant chain — <code>vrs/grant-chain/1.0</code></h2>
+  <p>An ordered chain of signed grants from a manufacturer root to the receipt issuer, establishing an authorised channel (<a href="02-vrs-specification.html#sec-mfg">§16</a>). Each grant's <code>parentGrant</code> references the previous grant's hash (<code>0x0…0</code> for the root grant).</p>
+<pre><code>{
+  "schema": "vrs/grant-chain/1.0",
+  "grants": [
+    { "batchId": "0x33bdafc4…", "grantor": "0x5555…5555", "grantee": "0x9999…9999",
+      "quantity": "100", "parentGrant": "0x0000…0000",
+      "validFrom": "1789900000", "validUntil": "1799900000", "nonce": "0x…", "signature": "0x<mfr sig>" },
+    { "batchId": "0x33bdafc4…", "grantor": "0x9999…9999", "grantee": "0x…00A1",
+      "quantity": "10", "parentGrant": "0x<hash of grant 0>",
+      "validFrom": "1789950000", "validUntil": "1799900000", "nonce": "0x…", "signature": "0x<distributor sig>" }
+  ]
+}</code></pre>
+</section>
+
+<!-- ISSUER MANIFEST -->
+<section id="manifest">
+  <h2><span class="secnum">10.</span> Issuer manifest — <code>vrs/issuer-manifest/1.0</code></h2>
+  <p>A small signed JSON object discovered at <code>https://&lt;domain&gt;/.well-known/vrs/issuer.json</code> (<a href="02-vrs-specification.html#sec-identity">§8</a>). It is not a DID document and needs no resolver. <code>manifestHash = keccak256(JCS(manifest without manifestHash+signatures))</code> and <span class="rfc">may</span> be anchored in an issuer registry.</p>
+<pre><code>{
+  "schema": "vrs/issuer-manifest/1.0",
+  "issuerRoot": "0x1111…1111",
+  "roles": ["merchant"],                       // merchant|manufacturer|service|courier
+  "domains": ["receipts.example"],
+  "keyPolicy": { "cold": "0x1111…1111", "admin": ["0x1a..","0x1b.."] },
+  "delegates": [ { "key": "0x2222…2222", "role": "merchant",
+                   "validFrom": "1789990000", "validUntil": "1790600000" } ],
+  "identifiers": { "legalName": "Example GmbH", "vatId": "DE123456789", "gs1CompanyPrefix": "9506000" },
+  "statusEndpoint": "https://receipts.example/.well-known/vrs/status",
+  "anchor": { "chainId": "8453", "registry": "0x…", "previousManifestHash": "0x…" },
+  "manifestHash": "0x<keccak256(JCS(...))>",
+  "signatures": [ { "by": "0x1111…1111", "sig": "0x<root signature>" } ]
+}</code></pre>
+</section>
+
+<!-- DEPLOYMENT MANIFEST -->
+<section id="deployment">
+  <h2><span class="secnum">11.</span> Deployment manifest</h2>
+  <p>Identifies the canonical registry deployment for an ecosystem (<a href="02-vrs-specification.html#sec-registry-state">§13</a>). Verifiers select registry addresses from the accepted, signed manifest; noncanonical deployments are not VRS state.</p>
+<pre><code>{
+  "schema": "vrs/deployment-manifest/1.0",
+  "ecosystem": "ethereum-base-mainnet",
+  "stateProfile": "vrs/ethereum-state/1.0",
+  "chainId": "8453",
+  "contracts": { "entitlementRegistry": "0x…", "attestationRegistry": "0x…",
+                 "anchorRegistry": "0x…", "mintAllowanceRegistry": "0x…",
+                 "receiptVerifier": "0x…", "noticeRegistry": "0x…" },
+  "manifestHash": "0x<keccak256(JCS(...))>",
+  "signatures": [ { "by": "0x<deployment signer>", "sig": "0x…" } ]
+}</code></pre>
+</section>
+
+<!-- REF / CLAIM -->
+<section id="refclaim">
+  <h2><span class="secnum">12.</span> Ref and claim responses</h2>
+  <p><code>GET /ref/{refId}</code> returns a powerless <code>vrs/ref-response/1.0</code>; claim redemption returns a one-time <code>vrs/claim-response/1.0</code> carrying bearer authority (<a href="02-vrs-specification.html#sec-refs">§10</a>).</p>
+<pre><code>// ref-response — never contains secrets
+{ "schema": "vrs/ref-response/1.0", "document": { /* signed receipt */ },
+  "creditGraph": { "schema": "vrs/credit-graph/1.0", "…": "…" } }
+
+// claim-response — returned once, marks the token consumed first
+{ "schema": "vrs/claim-response/1.0", "document": { /* signed receipt */ },
+  "secrets": { "schema": "vrs/secrets/1.0", "…": "…" },
+  "registerAuth": [ { "lineIndex": "0", "…": "…" } ],
+  "creditGraph": { "…": "…" } }</code></pre>
+</section>
+
+<!-- VRSBOX -->
+<section id="vrsbox">
+  <h2><span class="secnum">13.</span> <code>.vrsbox</code> archive</h2>
+  <p>The portable holder archive (<a href="02-vrs-specification.html#sec-bearer">§11</a>). A ZIP/JSON container; it <span class="rfc">must not</span> contain holder private keys unless a wallet profile permits.</p>
+<pre><code>{
+  "schema": "vrs/vrsbox/1.0",
+  "documents": [ { /* receipt */ } ],
+  "secrets":   { "schema": "vrs/secrets/1.0", "…": "…" },
+  "registrations": [ { "entitlementId": "0x…", "chainId": "8453", "registry": "0x…" } ],
+  "lifecycle": [ { /* lifecycle attestation */ } ],
+  "cache": { "creditGraphs": [], "manifests": [], "attestations": [] }
+}</code></pre>
+</section>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:2rem 0">
+<p class="small">Field lists marked here are the canonical core; profiles <span class="rfc">may</span> add namespaced fields under <code>headerExtensions</code> / <code>lineExtensions</code>. Where a field feeds a commitment, its type and encoding are fixed by <a href="02-vrs-specification.html#sec-crypto">Specification §6</a>; this document fixes the surrounding JSON. Byte-exact values appear in the <a href="04-vrs-conformance-vectors.html">Conformance Vectors</a>.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,216 @@
+[
+  {
+    "type": "function",
+    "name": "ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "attesters",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifyLineItem",
+    "inputs": [
+      {
+        "name": "h",
+        "type": "tuple",
+        "internalType": "struct VRSTypes.HeaderDisclosure",
+        "components": [
+          {
+            "name": "issuer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "issuedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "receiptType",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "fiscalHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "schemaHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "issuerSig",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "headerPath",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "rootIdentity",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "delegRole",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "delegValidFrom",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "delegValidUntil",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "rootSig",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      },
+      {
+        "name": "c",
+        "type": "tuple",
+        "internalType": "struct VRSTypes.CoreDisclosure",
+        "components": [
+          {
+            "name": "lineIndex",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "productId",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "qtyMilli",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "saltCommit",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "commercialHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "warrantyHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "descriptiveHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "provenanceHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "itemPath",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          }
+        ]
+      },
+      {
+        "name": "anchorRoot",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "anchorIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "anchorPath",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "entId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "productIdHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "issuedAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "anchoredTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "error",
+    "name": "DelegateRoleForbidden",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoAttesters",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotAnchored",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotAttested",
+    "inputs": []
+  }
+]

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifiable Receipt Standard (VRS)</title>
+<meta name="description" content="VRS — verifiable, private, useful-after-purchase digital receipts. Overview, specification, data formats, conformance vectors, and contract ABIs.">
+<style>
+  :root{ --bg:#faf9f5; --surface:#fff; --ink:#2c2c2a; --muted:#5f5e5a; --hint:#888780;
+    --border:rgba(0,0,0,.13); --rule:rgba(0,0,0,.07); --accent:#534ab7; --accentbg:#eeedfe; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#262624; --surface:#30302e; --ink:#e8e6dd; --muted:#b4b2a9;
+    --hint:#888780; --border:rgba(255,255,255,.15); --rule:rgba(255,255,255,.08); --accent:#afa9ec; --accentbg:#3c3489; } }
+  *{box-sizing:border-box;} body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;}
+  .wrap{max-width:48rem;margin:0 auto;padding:4rem 1.5rem 6rem;}
+  .kicker{color:var(--accent);font-weight:600;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6rem;}
+  h1{font-size:2.4rem;letter-spacing:-.02em;margin:0 0 .5rem;}
+  .lede{font-size:1.2rem;color:var(--muted);margin:0 0 .6rem;}
+  .lede strong{color:var(--ink);font-weight:600;}
+  .tagline{color:var(--hint);font-size:.95rem;margin:0 0 2.5rem;}
+  .cards{display:grid;gap:.9rem;}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--surface);
+    border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;transition:border-color .12s,transform .12s;}
+  a.card:hover{border-color:var(--accent);transform:translateY(-1px);}
+  a.card .t{font-size:1.1rem;font-weight:600;color:var(--accent);margin:0 0 .2rem;}
+  a.card .d{color:var(--muted);font-size:.95rem;margin:0;}
+  .num{color:var(--hint);font-weight:600;font-variant-numeric:tabular-nums;margin-right:.5rem;}
+  h2{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--hint);margin:2.5rem 0 .8rem;}
+  footer{margin-top:3rem;padding-top:1.4rem;border-top:1px solid var(--rule);color:var(--hint);font-size:.9rem;}
+  footer a{color:var(--accent);}
+  .pill{display:inline-block;font-size:.72rem;font-weight:600;color:var(--accent);background:var(--accentbg);
+    border-radius:6px;padding:.2rem .5rem;margin-left:.5rem;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">Verifiable Receipt Standard</p>
+  <h1>VRS</h1>
+  <p class="lede"><strong>Receipts you can verify, keep private, and use long after the purchase</strong> — without putting your basket on a public ledger, or pretending a blockchain can settle who owns what.</p>
+  <p class="tagline">An open standard. No protocol fee, no token, no rent on the core. <span class="pill">Draft</span></p>
+
+  <h2>Read</h2>
+  <div class="cards">
+    <a class="card" href="01-vrs-overview.html"><p class="t"><span class="num">01</span>Overview</p><p class="d">What it is, how it works, why it matters, and how you'd build on it — with use-case walkthroughs and a worked commitment tree.</p></a>
+    <a class="card" href="02-vrs-specification.html"><p class="t"><span class="num">02</span>Specification</p><p class="d">The normative, W3C-style spec: conformance, cryptographic constructions, the receipt model, registry, proofs, and more.</p></a>
+    <a class="card" href="03-vrs-data-formats.html"><p class="t"><span class="num">03</span>Data Formats</p><p class="d">Canonical JSON for every document type, with worked examples.</p></a>
+    <a class="card" href="04-vrs-conformance-vectors.html"><p class="t"><span class="num">04</span>Conformance Vectors</p><p class="d">Byte-exact test fixtures: tags, signed and delegated receipts, serial, registry digests, and negative cases.</p></a>
+    <a class="card" href="contracts/"><p class="t"><span class="num">◇</span>Contract ABIs &amp; conformance tests</p><p class="d">Canonical Solidity interfaces, generated JSON ABIs, and an implementation-agnostic Foundry conformance suite.</p></a>
+  </div>
+
+  <h2>Implementing?</h2>
+  <p style="color:var(--muted);font-size:.95rem;margin:0;">Start with the <a href="01-vrs-overview.html" style="color:var(--accent)">Overview</a>, build against the <a href="02-vrs-specification.html" style="color:var(--accent)">Specification</a> and <a href="03-vrs-data-formats.html" style="color:var(--accent)">Data Formats</a>, and check your output against the <a href="04-vrs-conformance-vectors.html" style="color:var(--accent)">Conformance Vectors</a>. For on-chain components, use the <a href="contracts/" style="color:var(--accent)">contract ABIs and conformance suite</a>.</p>
+
+  <footer>
+    Draft community specification — unaudited, not for production with real value.
+    The wire/commitment format is frozen as VRS major version 1.
+  </footer>
+</div>
+</body>
+</html>
